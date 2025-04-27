@@ -63,4 +63,11 @@ public class GameMenuManager : MonoBehaviour
             menu.transform.Rotate(0f, 180f, 0f);
         }
     }
+    // GameMenuManager.cs
+    public void CloseMenu()
+    {
+        isOpen = false;
+        menu.SetActive(false);   // 전체 인터페이스 OFF
+        if (hMenu) hMenu.ClearAll();
+    }
 }

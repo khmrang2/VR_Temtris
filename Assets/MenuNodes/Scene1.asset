@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40a962702cf0ebb47887c3eb3fd6bac1, type: 3}
-  m_Name: Quit
+  m_Name: Scene1
   m_EditorClassIdentifier: 
-  label: Quit
+  label: Scene1
   icon: {fileID: 0}
-  closeMenuOnSelect: 1
+  closeMenuOnSelect: 0
   onSelect:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 11500000, guid: e33cb7c7b888dd34293e32364f4a4c0a, type: 3}
-        m_TargetAssemblyTypeName: UnityEditor.MonoScript, UnityEditor.CoreModule
-        m_MethodName: 
-        m_Mode: 1
+      - m_Target: {fileID: 11400000, guid: 0ea07c1644464e0438bef403ed2b0479, type: 2}
+        m_TargetAssemblyTypeName: SceneLoaderSO, Assembly-CSharp
+        m_MethodName: LoadScene
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: BasicScene1
           m_BoolArgument: 0
         m_CallState: 2
   children: []

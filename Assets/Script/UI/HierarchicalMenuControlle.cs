@@ -8,7 +8,7 @@ public class HierarchicalMenuController : MonoBehaviour
     [Header("프리팹")]
     public GameObject panelPrefab;           // PanelUI
     public GameObject buttonPrefab;          // MenuButton
-    public float panelGap = 0.27f;      // 패널 X 간격(m)
+    public float panelGap = 0.45f;      // 패널 X 간격(m)
 
     [Header("왼쪽·위 오프셋 (m)")]
     [Tooltip("음수 = 왼쪽, 양수 = 오른쪽. 0 으로 두면 패널 폭의 -½ 로 자동 설정")]
@@ -51,6 +51,7 @@ public class HierarchicalMenuController : MonoBehaviour
         if (node == null) return;
 
         GameObject panelGO = Instantiate(panelPrefab, panelsRoot);
+        panelGO.transform.SetParent(panelsRoot, false);  // ⭐ 부모 강제 고정!
 
         /* 왼쪽·위 오프셋 + level*panelGap 우측 이동 */
         Vector3 localPos = new Vector3(level * panelGap + offsetLeft, offsetUp, 0f);
@@ -76,8 +77,15 @@ public class HierarchicalMenuController : MonoBehaviour
                 RemovePanelsAfter(level);
                 if (child.children != null && child.children.Count > 0)
                     SpawnPanel(child, level + 1);
-                else
+                else 
                     child.onSelect?.Invoke();
+
+                if (child.closeMenuOnSelect)
+                {
+                    // ★ 이 child가 closeMenuOnSelect == true 면만 닫는다!
+                    ClearAll();
+                }
+
             });
         }
     }
