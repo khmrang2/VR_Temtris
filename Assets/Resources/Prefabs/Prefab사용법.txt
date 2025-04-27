@@ -1,0 +1,22 @@
+자체 brick을 생성할 예정이라면
+다음과 같은 방법으로 생성했으니 이와 같은 방법을 고수하시길 바랍니다.
+
+1. Brick Object 생성 및 rigid body 적용.
+-> 블록의 root가 되는 오브젝트입니다.
+
+2. Meta Sdk 의 building Block을 이용하여 root 오브젝트에 TouchHandGrab, (optional distanceHandGrab)을 넣습니다.
+
+3. TouchHandGrab에 사용할 콜라이더 2개 bounds, Grab을 생성하여
+bounds에는 메시 콜라이더로 땅바닥에 떨어질 메시에 관한 콜라이더를
+Grab에는 사용자가 잡을 크기 만큼의 콜라이더를 생성해줍니다.( Grab collider는 서로 다른 콜라이더를 넣을 수 있습니다.)
+
+4. TouchHandGrab의 Script Component - Touch Hand Grab Intearactble의 BOunds Collider와 Colliders에 각각 Inspector에서 bounds, Grab을 할당해줍니다. 
+
+그러면 됩니다. 
+
+---
+optional -
+각 BuildingBlocks의 Grabbable 스크립트의 Transfer On Second Selection은
+"잡고 있는 중 다른 컨트롤러의 grab이 들어오면 권한을 넘겨줌" 이므로
+
+양손으로 컨트롤 할 블록이라면 체크를 해제해주세요.
