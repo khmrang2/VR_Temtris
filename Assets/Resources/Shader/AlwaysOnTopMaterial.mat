@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: AlwaysOnTopMaterial
-  m_Shader: {fileID: 4800000, guid: f9c787db8a9209c4a9dae550490d2a55, type: 3}
+  m_Shader: {fileID: 4800000, guid: ef9a44806eaa2d34da0b5a4ca0a15750, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
