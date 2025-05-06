@@ -11,16 +11,18 @@ public class LineTrigger : MonoBehaviour
     [Header("외부 연결")]
     public EdgeCuttingManager cuttingManager;
 
+    [Header("절단 기준 Plane")]
+    public Transform topPlane;
+    public Transform bottomPlane;
+
     private float triggerVolume;
     private float currentVolume = 0f;
 
-    // Collider별 개별 부피 저장
     private Dictionary<Collider, float> colliderVolumes = new();
-
-    // 그룹핑을 위한 Block → 해당 블럭이 가진 Collider 목록
     private Dictionary<GameObject, List<Collider>> blockColliders = new();
 
     private float stillTime = 0f;
+    private float lastFillRatio = -1f; // 변화 감지를 위한 필드 추가
     private bool isStable = false;
 
     private void Start()
@@ -45,19 +47,14 @@ public class LineTrigger : MonoBehaviour
                 blockColliders[block] = new List<Collider>();
             blockColliders[block].Add(other);
         }
-
-        Debug.Log($"[LineTrigger:{name}] 등록: {other.name} → 부피: {volume:F2} | 누적합: {currentVolume:F2}");
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (!colliderVolumes.ContainsKey(other)) return;
 
-        // 실제로 트리거 안에 있는지 한 번 더 확인
         if (GetComponent<Collider>().bounds.Intersects(other.bounds))
         {
-            // 아직 안 나갔다고 판단되면 return
-            Debug.LogWarning($"[LineTrigger:{name}] {other.name} → 여전히 트리거 안에 있음 (Exit 무시)");
             return;
         }
 
@@ -72,8 +69,6 @@ public class LineTrigger : MonoBehaviour
             if (blockColliders[block].Count == 0)
                 blockColliders.Remove(block);
         }
-
-        Debug.Log($"[LineTrigger:{name}] 퇴장: {other.name} | 제거 부피: {volume:F2} | 현재합: {currentVolume:F2}");
     }
 
     private void Update()
@@ -81,7 +76,13 @@ public class LineTrigger : MonoBehaviour
         CleanUpNullEntries();
 
         float fillRatio = currentVolume / triggerVolume;
-       // Debug.Log($"[LineTrigger:{name}] 현재 점유율: {fillRatio:F2}");
+
+        // 디버그: fillRatio 변화 감지 후 출력
+        if (Mathf.Abs(fillRatio - lastFillRatio) > 0.01f)
+        {
+            //Debug.Log($"[LineTrigger] 현재 점유율: {fillRatio:P1} ({currentVolume:F2} / {triggerVolume:F2})");
+            lastFillRatio = fillRatio;
+        }
 
         bool allSleeping = true;
         foreach (var kvp in blockColliders)
@@ -108,12 +109,21 @@ public class LineTrigger : MonoBehaviour
 
         if (isStable && fillRatio >= triggerThreshold)
         {
+            Debug.Log("[LineTrigger] 절단 조건 충족 → 절단 시도");
             bool success = cuttingManager?.RequestCut(this) ?? false;
-            if (success) ResetTrigger();
+            if (success)
+            {
+                Debug.Log("[LineTrigger] 절단 성공 → 트리거 초기화");
+                ResetTrigger();
+            }
+            else
+            {
+                Debug.LogWarning("[LineTrigger] 절단 실패");
+            }
         }
     }
 
-    private void ResetTrigger()
+    public void ResetTrigger()
     {
         currentVolume = 0f;
         stillTime = 0f;
@@ -140,10 +150,7 @@ public class LineTrigger : MonoBehaviour
         return null;
     }
 
-    public List<GameObject> GetCurrentBlocks()
-    {
-        return blockColliders.Keys.ToList();
-    }
+    public List<GameObject> GetCurrentBlocks() => blockColliders.Keys.ToList();
 
     private void CleanUpNullEntries()
     {
@@ -166,4 +173,12 @@ public class LineTrigger : MonoBehaviour
             }
         }
     }
+
+    // Plane 위치 제공
+    public Vector3 GetUpperPlanePos() => topPlane.position;
+    public Vector3 GetUpperPlaneNormal() => topPlane.up;
+
+    public Vector3 GetLowerPlanePos() => bottomPlane.position;
+    public Vector3 GetLowerPlaneNormal() => bottomPlane.up;
+
 }

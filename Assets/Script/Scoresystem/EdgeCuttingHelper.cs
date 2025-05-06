@@ -1,91 +1,132 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+ï»¿using UnityEngine;
 using EzySlice;
 
 public class EdgeCuttingHelper : MonoBehaviour
 {
-    [Header("´Ü¸é ÀçÁú (ºñ¿öµÎ¸é ÀÚµ¿À¸·Î ÃßÃâ)")]
+    [Header("ì„¤ì •")]
     public Material crossSectionMaterial;
-
-    [Header("Àı´Ü ÀÌÆåÆ® (Lower Á¶°¢ ÆÄ±« ½Ã Ãâ·Â)")]
     public GameObject cutEffectPrefab;
 
-    public void Cut(GameObject target, Vector3 planePos, Vector3 planeNormal)
+    public void Cut(GameObject block, Vector3 planePos, Vector3 planeNormal)
     {
-        if (target == null) return;
-
-        BlockSliceInfo sliceInfo = target.GetComponentInParent<BlockSliceInfo>();
-        if (sliceInfo == null || sliceInfo.sliceReplacementPrefab == null)
+        if (block == null)
         {
-            Debug.LogWarning($"[EdgeCuttingHelper] {target.name}¿¡ BlockSliceInfo ¶Ç´Â ÇÁ¸®ÆÕÀÌ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("[EdgeCuttingHelper] ì˜ë¼ì•¼ í•  ë¸”ëŸ­ì´ nullì…ë‹ˆë‹¤.");
             return;
         }
 
-        MeshFilter meshFilter = FindMeshFilterInChildren(target);
-        if (meshFilter == null)
+        Debug.Log($"[EdgeCuttingHelper] '{block.name}' ì ˆë‹¨ ì‹œë„ - PlanePos: {planePos}, PlaneNormal: {planeNormal}");
+
+        // ìì‹ì´ ì—¬ëŸ¬ ê°œ ìˆë‹¤ë©´ CombineMeshes
+        MeshFilter[] meshFilters = block.GetComponentsInChildren<MeshFilter>();
+        if (meshFilters.Length > 1)
         {
-            Debug.LogWarning($"[EdgeCuttingHelper] {target.name} ³»¿¡ MeshFilter¸¦ Ã£Áö ¸øÇß½À´Ï´Ù.");
-            return;
+            Debug.Log($"[EdgeCuttingHelper] ìì‹ Meshê°€ {meshFilters.Length}ê°œ â†’ ë³‘í•© í›„ ì ˆë‹¨");
+
+            GameObject combined = CombineChildMeshes(block);
+            if (combined == null)
+            {
+                Debug.LogWarning("[EdgeCuttingHelper] Mesh ë³‘í•© ì‹¤íŒ¨ â†’ ì ˆë‹¨ ì¤‘ë‹¨");
+                return;
+            }
+
+            Destroy(block); // ì›ë³¸ ë¸”ëŸ­ ì œê±° (ìì‹ í¬í•¨)
+            SliceAndDestroy(combined, planePos, planeNormal);
+            //Destroy(block); // ì›ë³¸ ë¸”ëŸ­ ì œê±° (ìì‹ í¬í•¨)
         }
+        else
+        {
+            Debug.Log($"[EdgeCuttingHelper] ìì‹ ì—†ìŒ â†’ ì›ë³¸ ê·¸ëŒ€ë¡œ ì ˆë‹¨");
+            SliceAndDestroy(block, planePos, planeNormal);
+        }
+    }
 
-        GameObject meshGO = meshFilter.gameObject;
-        EzySlice.Plane slicingPlane = new EzySlice.Plane(planeNormal, planePos);
-        Debug.DrawRay(planePos, planeNormal * 5f, Color.red, 5f);
-
-        SlicedHull hull = meshGO.Slice(slicingPlane, GetCrossSectionMaterial(target));
+    private void SliceAndDestroy(GameObject target, Vector3 planePos, Vector3 planeNormal)
+    {
+        var hull = target.Slice(planePos, planeNormal);
         if (hull == null)
         {
-            Debug.LogWarning($"[EdgeCuttingHelper] {target.name} Àı´Ü ½ÇÆĞ (Hull »ı¼ºµÇÁö ¾ÊÀ½)");
+            Debug.LogWarning($"[EdgeCuttingHelper] '{target.name}' ì ˆë‹¨ ì‹¤íŒ¨ - Hullì´ nullì…ë‹ˆë‹¤.");
             return;
         }
 
-        Material originalMat = GetFirstMaterialFromTarget(target);
-        Material crossMat = GetCrossSectionMaterial(target);
+        Debug.Log($"[EdgeCuttingHelper] '{target.name}' ì ˆë‹¨ ì„±ê³µ");
 
-        // Upper »ı¼º (ÇÁ¸®ÆÕ ±â¹İ)
-        GameObject upper = Instantiate(sliceInfo.sliceReplacementPrefab, target.transform.position, target.transform.rotation);
-        Mesh upperMesh = hull.CreateUpperHull(meshGO, originalMat).GetComponent<MeshFilter>().mesh;
-        ReplaceMesh(upper, upperMesh, originalMat);
+        GameObject upper = hull.CreateUpperHull(target, crossSectionMaterial);
+        GameObject lower = hull.CreateLowerHull(target, crossSectionMaterial);
 
-        // Lower´Â »èÁ¦
-        GameObject lower = hull.CreateLowerHull(meshGO, crossMat);
-        if (cutEffectPrefab != null)
-            Instantiate(cutEffectPrefab, lower.transform.position, Quaternion.identity);
-
-        Destroy(lower);
-        Destroy(target);
-    }
-
-    private void ReplaceMesh(GameObject obj, Mesh newMesh, Material mat)
-    {
-        MeshFilter mf = obj.GetComponent<MeshFilter>();
-        if (mf != null) mf.mesh = newMesh;
-
-        MeshCollider mc = obj.GetComponent<MeshCollider>();
-        if (mc != null)
+        if (upper != null)
         {
-            mc.sharedMesh = newMesh;
-            mc.convex = true;
+            SetupSlicedPart(upper, target.transform);
+            Debug.Log($"[EdgeCuttingHelper] Upper ìƒì„±ë¨: {upper.name}");
         }
 
-        MeshRenderer mr = obj.GetComponent<MeshRenderer>();
-        if (mr != null && mat != null)
-            mr.material = mat;
+        if (lower != null)
+        {
+            if (cutEffectPrefab != null)
+                Instantiate(cutEffectPrefab, lower.transform.position, Quaternion.identity);
+
+            Debug.Log($"[EdgeCuttingHelper] Lower ìƒì„±ë¨: {lower.name} â†’ ì œê±°ë¨");
+            Destroy(lower);
+        }
+
+        Destroy(target);
+        Debug.Log($"[EdgeCuttingHelper] ì›ë³¸ ë¸”ëŸ­ ì œê±°ë¨: {target.name}");
     }
 
-    private Material GetFirstMaterialFromTarget(GameObject target)
+    private GameObject CombineChildMeshes(GameObject parent)
     {
-        Renderer[] renderers = target.GetComponentsInChildren<Renderer>();
-        return renderers.Length > 0 ? renderers[0].sharedMaterial : null;
+        MeshFilter[] meshFilters = parent.GetComponentsInChildren<MeshFilter>();
+        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+
+        for (int i = 0; i < meshFilters.Length; i++)
+        {
+            if (meshFilters[i] == null || meshFilters[i].sharedMesh == null) return null;
+
+            combine[i].mesh = meshFilters[i].sharedMesh;
+            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+        }
+
+        Mesh combinedMesh = new Mesh();
+        combinedMesh.CombineMeshes(combine);
+
+        GameObject combinedObject = new GameObject(parent.name + "_Combined");
+        combinedObject.transform.position = parent.transform.position;
+        combinedObject.transform.rotation = parent.transform.rotation;
+        combinedObject.transform.localScale = parent.transform.localScale;
+
+        var mf = combinedObject.AddComponent<MeshFilter>();
+        mf.mesh = combinedMesh;
+
+        var mr = combinedObject.AddComponent<MeshRenderer>();
+        mr.material = GetCrossSectionMaterial(parent);
+
+        return combinedObject;
+    }
+
+    private void SetupSlicedPart(GameObject part, Transform original)
+    {
+        part.transform.SetPositionAndRotation(original.position, original.rotation);
+        part.transform.localScale = original.localScale;
+
+        part.name = "Upper_Hull";
+        var mf = part.GetComponent<MeshFilter>();
+        var mc = part.AddComponent<MeshCollider>();
+        mc.sharedMesh = mf.sharedMesh;
+        mc.convex = true;
+
+        var rb = part.AddComponent<Rigidbody>();
+        rb.useGravity = true;
     }
 
     private Material GetCrossSectionMaterial(GameObject target)
     {
-        return crossSectionMaterial != null ? crossSectionMaterial : GetFirstMaterialFromTarget(target);
+        return crossSectionMaterial ?? GetFirstMaterialFromTarget(target);
     }
-    private MeshFilter FindMeshFilterInChildren(GameObject obj)
+
+    private Material GetFirstMaterialFromTarget(GameObject target)
     {
-        return obj.GetComponentInChildren<MeshFilter>();
+        Renderer r = target.GetComponentInChildren<Renderer>();
+        return r != null ? r.sharedMaterial : null;
     }
 }
