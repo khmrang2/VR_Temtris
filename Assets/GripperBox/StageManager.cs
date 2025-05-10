@@ -3,7 +3,7 @@ using System.Collections;
 
 public class StageManager : MonoBehaviour
 {
-    public Transform spawnPoint;      // 하나의 출발 지점
+    public Transform spawnPoint;      // 출발 지점(Gripper의 첫번째 Waypoint와 동일)
     public int spawnCount = 10;       // 총 몇 개 생성할지, 나중에 파라미터식으로 수정 필요
     public float spawnInterval = 1.5f; // 몇 초 간격으로 생성할지
 

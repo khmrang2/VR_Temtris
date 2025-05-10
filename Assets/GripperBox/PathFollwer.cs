@@ -21,34 +21,28 @@ public class PathFollower : MonoBehaviour
 
     void Update()
     {
-        if (currentIndex >= waypoints.Length)
+        if (currentIndex >= waypoints.Length)   // 경로 끝에 도달했을 때 Gripper 비활성화
         {
-            // 경로 끝에 도달했을 때 Gripper 비활성화
             if (gripper != null)
             {
                 gripper.ResetGripper();
-                gameObject.SetActive(false); // 풀로 복귀
+                gameObject.SetActive(false);
             }
 
             return;
         }
 
         Transform target = waypoints[currentIndex];
-        transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);      // 경로로 이동
 
         if (Vector3.Distance(transform.position, target.position) < 0.1f)
         {
-            if (currentIndex == openBoxAtIndex && gripper != null)
+            if (currentIndex == openBoxAtIndex && gripper != null)      // 설정된 박스 오픈 위치에 도달 시 박스 오픈
             {
                 gripper.OpenBoxIfHolding();
             }
 
-            currentIndex++;
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            gripper?.Release();
+            currentIndex++;     // 다음 경로로
         }
     }
 }
