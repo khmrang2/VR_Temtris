@@ -15,8 +15,6 @@ public class FixedGameMenuManager : MonoBehaviour
         if (menu == null) Debug.LogError("[GMM] menu 오브젝트 미지정");
         if (hMenu == null) Debug.LogError("[GMM] HierarchicalMenuController 미지정");
         if (rootNode == null) Debug.LogWarning("[GMM] rootNode 가 null 입니다");
-
-        SetupMenuPosition();
     }
 
     void SetupMenuPosition()
@@ -35,10 +33,13 @@ public class FixedGameMenuManager : MonoBehaviour
 
     void Start()
     {
+        SetupMenuPosition();
+        
         if (hMenu && rootNode)
             hMenu.Open(rootNode);
         else
             Debug.LogWarning("[GMM] hMenu 또는 rootNode 가 null. 패널 못 띄움");
+
     }
 
     public void CloseMenu()
