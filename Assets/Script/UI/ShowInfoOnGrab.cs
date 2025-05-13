@@ -19,9 +19,8 @@ public class ShowInfoOnGrab : MonoBehaviour
     public Transform uiAnchor;                       // 없는 경우 Awake에서 자동 탐색
 
     [Header("토글 입력 바인딩")]
-    [Tooltip("키보드(F) + XR RightController primaryButton")]
-    public string keyboardToggleKey = "<Keyboard>/f";
-    public string xrToggleBinding = "<XRController>{RightHand}/primaryButton";
+    [Tooltip("오른쪽 컨트롤러 클릭")]
+    public InputActionProperty showButton;
 
     [Header("UI 초기 스케일")]
     public float uiScale = 0.002f;                   // 1 = 1 m, 0.002 ≈ 2 mm
@@ -49,19 +48,13 @@ public class ShowInfoOnGrab : MonoBehaviour
         grab.selectEntered.AddListener(OnGrab);
         grab.selectExited.AddListener(OnRelease);
 
-        /* 4) 토글 입력 세팅 */
-        toggleAction = new InputAction(type: InputActionType.Button);
-        toggleAction.AddBinding(keyboardToggleKey);
-        toggleAction.AddBinding(xrToggleBinding);
-        toggleAction.Enable();
-
         Debug.Log($"[{name}] ShowInfoOnGrab 초기화 완료");
     }
 
     /* ──────────────────────── */
     void Update()
     {
-        if (spawnedUI && toggleAction.WasPressedThisFrame())
+        if (spawnedUI && showButton.action.WasPressedThisFrame())
         {
             bool newState = !spawnedUI.activeSelf;
             spawnedUI.SetActive(newState);

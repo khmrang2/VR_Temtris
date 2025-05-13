@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40a962702cf0ebb47887c3eb3fd6bac1, type: 3}
-  m_Name: SelectScene
+  m_Name: Scenes
   m_EditorClassIdentifier: 
-  label: Select Scene
+  label: Scenes
   icon: {fileID: 0}
   closeMenuOnSelect: 0
   onSelect:
