@@ -20,7 +20,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 11400000, guid: 0ea07c1644464e0438bef403ed2b0479, type: 2}
         m_TargetAssemblyTypeName: SceneLoaderSO, Assembly-CSharp
-        m_MethodName: LoadScene
+        m_MethodName: LoadSceneWithFade
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
