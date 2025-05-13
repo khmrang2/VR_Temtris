@@ -285,6 +285,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uiPrefab: {fileID: 7962842247773857366, guid: 755624785ab69aa44952b63e044b974b, type: 3}
+  uiAnchor: {fileID: 0}
+  showButton:
+    m_UseReference: 0
+    m_Action:
+      m_Name: Show Button
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: c51822c3-f705-4061-8045-b59693ac6ea2
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  uiScale: 0.002
 --- !u!1 &5972610636038382043
 GameObject:
   m_ObjectHideFlags: 0

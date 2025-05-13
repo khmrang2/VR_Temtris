@@ -3,11 +3,16 @@ using UnityEngine;
 
 public class EdgeCuttingManager : MonoBehaviour
 {
-    [Header("Àı´Ü ÇïÆÛ")]
+    [Header("ì ˆë‹¨ í—¬í¼")]
     public EdgeCuttingHelper edgeCutter;
 
-    [Header("Á¡¼ö °ü¸®ÀÚ")]
+    [Header("ì ìˆ˜ ê´€ë¦¬ì")]
     public ScoreManager scoreManager;
+
+    [Header("ì„¤ì •")]
+    public float threshold = 0.8f;
+    public float motionCheckDelay = 0.5f;
+    
 
     public bool RequestCut(LineTrigger trigger)
     {
@@ -31,7 +36,7 @@ public class EdgeCuttingManager : MonoBehaviour
             if (root.CompareTag("Block"))
             {
                 edgeCutter.Cut(root.gameObject, upperPos, upperNormal);
-                edgeCutter.Cut(root.gameObject, lowerPos, lowerNormal);
+                //edgeCutter.Cut(root.gameObject, lowerPos, lowerNormal);
                 cutCount++;
             }
         }
@@ -44,4 +49,7 @@ public class EdgeCuttingManager : MonoBehaviour
 
         return false;
     }
+
+    public float getThreshold() { return this.threshold; }
+    public float getMotionCheckDelay() { return this.motionCheckDelay; }
 }

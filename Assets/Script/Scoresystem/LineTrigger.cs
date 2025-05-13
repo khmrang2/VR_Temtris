@@ -4,16 +4,15 @@ using UnityEngine;
 
 public class LineTrigger : MonoBehaviour
 {
-    [Header("¼³Á¤")]
-    public float triggerThreshold = 0.8f;
-    public float motionCheckDelay = 0.5f;
+    [Header("ì™¸ë¶€ ì—°ê²°")]
+    [SerializeField] private EdgeCuttingManager _cuttingManager;
 
-    [Header("¿ÜºÎ ¿¬°á")]
-    public EdgeCuttingManager cuttingManager;
+    [Header("ì ˆë‹¨ ê¸°ì¤€ Plane")]
+    [SerializeField] private Transform topPlane;
+    [SerializeField] private Transform bottomPlane;
 
-    [Header("Àı´Ü ±âÁØ Plane")]
-    public Transform topPlane;
-    public Transform bottomPlane;
+    private float _triggerThreshold = 0.8f; // default 0.8f;
+    private float _motionCheckDelay = 0.5f; //  default 0.5f;
 
     private float triggerVolume;
     private float currentVolume = 0f;
@@ -22,14 +21,18 @@ public class LineTrigger : MonoBehaviour
     private Dictionary<GameObject, List<Collider>> blockColliders = new();
 
     private float stillTime = 0f;
-    private float lastFillRatio = -1f; // º¯È­ °¨Áö¸¦ À§ÇÑ ÇÊµå Ãß°¡
+    private float lastFillRatio = -1f; // ë³€í™” ê°ì§€ë¥¼ ìœ„í•œ í•„ë“œ ì¶”ê°€
     private bool isStable = false;
 
     private void Start()
     {
         BoxCollider box = GetComponent<BoxCollider>();
         triggerVolume = box.size.x * box.size.y * box.size.z;
-        Debug.Log($"[Init] Æ®¸®°Å ÀüÃ¼ ºÎÇÇ: {triggerVolume:F2}");
+        Debug.Log($"[Init] íŠ¸ë¦¬ê±° ì „ì²´ ë¶€í”¼: {triggerVolume:F2}");
+
+        // ì´ˆê¸°ê°’ ì„¤ì •.
+        _triggerThreshold = _cuttingManager.getThreshold();
+        _motionCheckDelay = _cuttingManager.getMotionCheckDelay();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -77,10 +80,10 @@ public class LineTrigger : MonoBehaviour
 
         float fillRatio = currentVolume / triggerVolume;
 
-        // µğ¹ö±×: fillRatio º¯È­ °¨Áö ÈÄ Ãâ·Â
+        // ë””ë²„ê·¸: fillRatio ë³€í™” ê°ì§€ í›„ ì¶œë ¥
         if (Mathf.Abs(fillRatio - lastFillRatio) > 0.01f)
         {
-            //Debug.Log($"[LineTrigger] ÇöÀç Á¡À¯À²: {fillRatio:P1} ({currentVolume:F2} / {triggerVolume:F2})");
+            //Debug.Log($"[LineTrigger] í˜„ì¬ ì ìœ ìœ¨: {fillRatio:P1} ({currentVolume:F2} / {triggerVolume:F2})");
             lastFillRatio = fillRatio;
         }
 
@@ -98,7 +101,7 @@ public class LineTrigger : MonoBehaviour
         if (allSleeping)
         {
             stillTime += Time.deltaTime;
-            if (!isStable && stillTime >= motionCheckDelay)
+            if (!isStable && stillTime >= _motionCheckDelay)
                 isStable = true;
         }
         else
@@ -107,19 +110,23 @@ public class LineTrigger : MonoBehaviour
             isStable = false;
         }
 
-        if (isStable && fillRatio >= triggerThreshold)
+        if (isStable && fillRatio >= _triggerThreshold)
         {
-            Debug.Log("[LineTrigger] Àı´Ü Á¶°Ç ÃæÁ· ¡æ Àı´Ü ½Ãµµ");
-            bool success = cuttingManager?.RequestCut(this) ?? false;
+            Debug.Log("[LineTrigger] ì ˆë‹¨ ì¡°ê±´ ì¶©ì¡± â†’ ì ˆë‹¨ ì‹œë„");
+            bool success = _cuttingManager?.RequestCut(this) ?? false;
             if (success)
             {
-                Debug.Log("[LineTrigger] Àı´Ü ¼º°ø ¡æ Æ®¸®°Å ÃÊ±âÈ­");
+                Debug.Log("[LineTrigger] ì ˆë‹¨ ì„±ê³µ â†’ íŠ¸ë¦¬ê±° ì´ˆê¸°í™”");
                 ResetTrigger();
             }
             else
             {
-                Debug.LogWarning("[LineTrigger] Àı´Ü ½ÇÆĞ");
+                Debug.LogWarning("[LineTrigger] ì ˆë‹¨ ì‹¤íŒ¨");
             }
+        }
+        else
+        {
+            Debug.Log($"[LineTrigger] í˜„ì¬ ì ìœ ìœ¨: {fillRatio:P1} ({currentVolume:F2} / {triggerVolume:F2})");
         }
     }
 
@@ -174,7 +181,7 @@ public class LineTrigger : MonoBehaviour
         }
     }
 
-    // Plane À§Ä¡ Á¦°ø
+    // Plane ìœ„ì¹˜ ì œê³µ
     public Vector3 GetUpperPlanePos() => topPlane.position;
     public Vector3 GetUpperPlaneNormal() => topPlane.up;
 

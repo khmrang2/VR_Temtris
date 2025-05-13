@@ -7,6 +7,7 @@ public class Gripper : MonoBehaviour
 
     public void Grab(GameObject box)    // 박스 붙잡기
     {
+        Debug.Log($"[Gripper.cs] : 스폰된 지점 : {this.gameObject.transform.position}");
         heldBox = box;
         box.transform.SetParent(holdPoint);     // 박스를 Gripper의 자식으로 설정
         box.transform.localPosition = Vector3.zero;
@@ -58,8 +59,8 @@ public class Gripper : MonoBehaviour
         {
             Release();
         }
-
-        transform.position = Vector3.zero;
-        transform.rotation = Quaternion.identity;
+        // -> 이거 때문에 Waypoint1의 위치가 아닌 (0,0,0) 에서 스폰이 되었음. 스폰문제해결.
+        //transform.position = Vector3.zero;
+        //transform.rotation = Quaternion.identity;
     }
 }

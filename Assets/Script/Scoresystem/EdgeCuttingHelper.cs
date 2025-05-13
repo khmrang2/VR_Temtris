@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using EzySlice;
 
 public class EdgeCuttingHelper : MonoBehaviour
@@ -106,6 +106,9 @@ public class EdgeCuttingHelper : MonoBehaviour
 
     private void SetupSlicedPart(GameObject part, Transform original)
     {
+        // 유저는 막고, 블록은 들어가게 구분짓기 위한 레이어 추가.
+        part.layer = LayerMask.NameToLayer("Block");
+
         part.transform.SetPositionAndRotation(original.position, original.rotation);
         part.transform.localScale = original.localScale;
 
@@ -117,6 +120,7 @@ public class EdgeCuttingHelper : MonoBehaviour
 
         var rb = part.AddComponent<Rigidbody>();
         rb.useGravity = true;
+
     }
 
     private Material GetCrossSectionMaterial(GameObject target)

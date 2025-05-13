@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
-public class StageManager : MonoBehaviour
+public class ObjectSpawnManager : MonoBehaviour
 {
-    public Transform spawnPoint;      // Ãâ¹ß ÁöÁ¡(GripperÀÇ Ã¹¹øÂ° Waypoint¿Í µ¿ÀÏ)
-    public int spawnCount = 10;       // ÃÑ ¸î °³ »ı¼ºÇÒÁö, ³ªÁß¿¡ ÆÄ¶ó¹ÌÅÍ½ÄÀ¸·Î ¼öÁ¤ ÇÊ¿ä
-    public float spawnInterval = 1.5f; // ¸î ÃÊ °£°İÀ¸·Î »ı¼ºÇÒÁö
+    public Transform spawnPoint;      // ì¶œë°œ ì§€ì (Gripperì˜ ì²«ë²ˆì§¸ Waypointì™€ ë™ì¼)
+    public int spawnCount = 10;       // ì´ ëª‡ ê°œ ìƒì„±í• ì§€, ë‚˜ì¤‘ì— íŒŒë¼ë¯¸í„°ì‹ìœ¼ë¡œ ìˆ˜ì • í•„ìš”
+    public float spawnInterval = 1.5f; // ëª‡ ì´ˆ ê°„ê²©ìœ¼ë¡œ ìƒì„±í• ì§€
 
     void Start()
     {
@@ -18,17 +18,17 @@ public class StageManager : MonoBehaviour
 
         for (int i = 0; i < spawnCount; i++)
         {
-            // Gripper¿Í Box »ı¼º
+            // Gripperì™€ Box ìƒì„±
             GameObject gripper = ObjectPoolManager.Instance.SpawnFromPool("Gripper", spawnPoint.position, Quaternion.identity);
             if (gripper == null)
             {
-                Debug.LogWarning("Gripper »ı¼º ½ÇÆĞ. ¹Ú½ºµµ »ı¼ºÇÏÁö ¾ÊÀ½.");
+                Debug.LogWarning("Gripper ìƒì„± ì‹¤íŒ¨. ë°•ìŠ¤ë„ ìƒì„±í•˜ì§€ ì•ŠìŒ.");
                 continue;
             }
             GameObject box = ObjectPoolManager.Instance.SpawnFromPool("Box", Vector3.zero, Quaternion.identity);
             if (box == null)
             {
-                Debug.LogWarning("Box »ı¼º ½ÇÆĞ.");
+                Debug.LogWarning("Box ìƒì„± ì‹¤íŒ¨.");
                 continue;
             }
 

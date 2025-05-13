@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using System.Collections;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 
 [RequireComponent(typeof(UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable))]
 public class BoxOpen : MonoBehaviour
@@ -14,9 +15,9 @@ public class BoxOpen : MonoBehaviour
     private UnityEngine.XR.Interaction.Toolkit.Interactors.IXRSelectInteractor currentInteractor;
     private InputDevice heldDevice;
 
-    private bool isOpened = false;      // 박스가 열렸는 지
-    private bool heldByGripper = true;      // Gripper에 의해 붙잡히고 있는 지
-    private Gripper holdingGripper = null;      // 붙잡히고 있는 Gripper 참조
+    [SerializeField] private bool isOpened = false;      // 박스가 열렸는 지
+    [SerializeField] private bool heldByGripper = true;      // Gripper에 의해 붙잡히고 있는 지
+    [SerializeField] private Gripper holdingGripper = null;      // 붙잡히고 있는 Gripper 참조
 
     private void Awake()        // 플레이어에 의한 Grap 확인
     {
@@ -24,6 +25,12 @@ public class BoxOpen : MonoBehaviour
 
         grabInteractable.selectEntered.AddListener(OnSelectEntered);    // 플레이어에 의해 Grap 당했을 때
         grabInteractable.selectExited.AddListener(OnSelectExited);      // 플레이어에 의해 Grap 해제됐을 때
+        grabInteractable.activated.AddListener(OnTriggerActivated);
+    }
+
+    private void OnTriggerActivated(ActivateEventArgs arg)
+    {
+        TryOpen();
     }
 
     private void OnSelectEntered(SelectEnterEventArgs args)     // 플레이어에 의해 Grap 당했을 때
@@ -40,15 +47,13 @@ public class BoxOpen : MonoBehaviour
         // XR 장치 입력 연결 ***** 아마 수정 필요
         if (currentInteractor is UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInputInteractor controllerInteractor)
         {
-            if (controllerInteractor.xrController is XRController xrController)
-            {
-                heldDevice = xrController.inputDevice;
-            }
+            Debug.Log("[BoxOpen] : 플레이어에게 잡혔는지?");
         }
     }
 
     private void OnSelectExited(SelectExitEventArgs args)       // 플레이어에 의해 Grap 해제됐을 때
     {
+        Debug.Log("[BoxOpen] : 유저가 박스를 놨다! ");
         currentInteractor = null;
         heldDevice = default;
     }
@@ -61,6 +66,7 @@ public class BoxOpen : MonoBehaviour
         // 플레이어에 의한 Grap 상태에서 트리거 버튼이 입력되면 박스를 오픈
         if (heldDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerPressed) && triggerPressed)
         {
+            Debug.Log("[BoxOpen] : 유저가 열려고 했다!");
             TryOpen();
         }
     }
