@@ -15,3 +15,4 @@ MonoBehaviour:
   blockSpawnInterval: 1
   randomSeed: 123151
   timeLimit: 30
+  pointGoal: 400

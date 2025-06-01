@@ -5,6 +5,9 @@ using UnityEngine.Events;
 [CreateAssetMenu(menuName = "XRMenu/Stage Node")]
 public class Stagenode : MenuNode
 {
+    // 난이도와 맵을 분리시켜 놓았기 때문에,
+    // 어떤 맵이든 가능함.
+    // 추후 맵을 선택하는 기능(options - grahpics 에서 선택)
     [Header("불러올 스테이지의 이름 - BuildSettings에 등록된 SceneName.")]
     public string sceneName;
 
@@ -30,10 +33,8 @@ public class Stagenode : MenuNode
             Debug.LogError($"[StageNode:{label}] StageDataSO(data)가 할당되지 않았습니다.");
             return;
         }
-        Debug.LogWarning("씬 로드 시작");
         // 실제로 currentStageData에 데이터를 기록하고 씬 전환
         sceneLoader.LoadScene(sceneName, data);
-        Debug.LogWarning("씬 로드 종료");
 
         // 만약 추가로 다른 UnityEvent(onSelect)가 걸려 있으면 실행
         // onSelect?.Invoke();
