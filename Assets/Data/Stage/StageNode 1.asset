@@ -9,25 +9,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40a962702cf0ebb47887c3eb3fd6bac1, type: 3}
-  m_Name: Scene1
+  m_Script: {fileID: 11500000, guid: 058b1a1d60cd52548b7bc96757a210b9, type: 3}
+  m_Name: StageNode 1
   m_EditorClassIdentifier: 
-  label: Scene1
+  label: Stage1
   icon: {fileID: 0}
   closeMenuOnSelect: 0
   onSelect:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 11400000, guid: 0ea07c1644464e0438bef403ed2b0479, type: 2}
-        m_TargetAssemblyTypeName: SceneLoaderSO, Assembly-CSharp
-        m_MethodName: LoadSceneWithFade
-        m_Mode: 5
+      - m_Target: {fileID: 11400000}
+        m_TargetAssemblyTypeName: Stagenode, Assembly-CSharp
+        m_MethodName: OnSelectStage
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: BasicScene1
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
   children: []
+  sceneName: StageScene1
+  data: {fileID: 11400000, guid: c3d140aa177d8f041a35ea64fee93dbb, type: 2}
+  sceneLoader: {fileID: 11400000, guid: 0ea07c1644464e0438bef403ed2b0479, type: 2}

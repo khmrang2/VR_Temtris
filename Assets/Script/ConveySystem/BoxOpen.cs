@@ -107,8 +107,11 @@ public class BoxOpen : MonoBehaviour
         var ps = effect.GetComponent<ParticleSystem>();
         if (ps != null) ps.Play();
 
+
+        // 실제 item(=tetrio)를 생성하는 부분. 
         if (itemPrefabs.Length > 0)
         {
+            // seed를 통해서 Random.initState(int)로 시드를 항상 고정 시키자.
             int rand = Random.Range(0, itemPrefabs.Length);
             Quaternion randomRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f)); // Z축만 랜덤하게 설정
             Instantiate(itemPrefabs[rand], itemSpawnPoint.position, randomRotation);
