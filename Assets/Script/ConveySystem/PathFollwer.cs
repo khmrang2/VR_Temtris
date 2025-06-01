@@ -9,6 +9,7 @@ public class PathFollower : MonoBehaviour
     private int currentIndex = 0;
     private Gripper gripper;
 
+    private Vector3 randomOpenPoint; // ìƒì ì˜¤í”ˆ í¬ì¸íŠ¸
     public void ResetFollower()
     {
         currentIndex = 0;
@@ -17,11 +18,17 @@ public class PathFollower : MonoBehaviour
     void Start()
     {
         gripper = GetComponent<Gripper>();
+
+        // ìƒì ì˜¤í”ˆ í¬ì¸íŠ¸ ê³„ì‚°, ì´ˆê¸° ì„¤ì •ëœ ì˜¤í”ˆ í¬ì¸íŠ¸ì—ì„œë¶€í„° ë‹¤ìŒ waypoint ì‚¬ì´ ëœë¤í•œ ì§€ì 
+        Vector3 from = waypoints[openBoxAtIndex].position;
+        Vector3 to = waypoints[openBoxAtIndex + 1].position;
+        float t = Random.Range(0f, 1f); 
+        randomOpenPoint = Vector3.Lerp(from, to, t);
     }
 
     void Update()
     {
-        if (currentIndex >= waypoints.Length)   // °æ·Î ³¡¿¡ µµ´ŞÇßÀ» ¶§ Gripper ºñÈ°¼ºÈ­
+        if (currentIndex >= waypoints.Length)   // ê²½ë¡œ ëì— ë„ë‹¬í–ˆì„ ë•Œ Gripper ë¹„í™œì„±í™”
         {
             if (gripper != null)
             {
@@ -33,16 +40,21 @@ public class PathFollower : MonoBehaviour
         }
 
         Transform target = waypoints[currentIndex];
-        transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);      // °æ·Î·Î ÀÌµ¿
+        transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);      // ê²½ë¡œë¡œ ì´ë™
 
-        if (Vector3.Distance(transform.position, target.position) < 0.1f)
+        // ì‚¬ì „ ì„¤ì •ëœ ì˜¤í”ˆ í¬ì¸íŠ¸ ë„ë‹¬ì‹œ
+        if (Vector3.Distance(transform.position, randomOpenPoint) < 0.1f)
         {
-            if (currentIndex == openBoxAtIndex && gripper != null)      // ¼³Á¤µÈ ¹Ú½º ¿ÀÇÂ À§Ä¡¿¡ µµ´Ş ½Ã ¹Ú½º ¿ÀÇÂ
+            if (gripper != null)
             {
                 gripper.OpenBoxIfHolding();
             }
+        }
 
-            currentIndex++;     // ´ÙÀ½ °æ·Î·Î
+        // ì¼ë°˜ waypoint ë„ë‹¬ ì²˜ë¦¬
+        if (Vector3.Distance(transform.position, target.position) < 0.1f)
+        {
+            currentIndex++;
         }
     }
 }

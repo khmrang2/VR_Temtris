@@ -81,13 +81,28 @@ public class BoxOpen : MonoBehaviour
 
         isOpened = true;        // 열림 상태 설정
         animator.SetTrigger("OpenBox");     // 애니메이션 재생
-        StartCoroutine(SpawnItemWithEffect());
+        StartCoroutine(Wait(0.7f));
+        SpawnItemWithEffect();
+        StartCoroutine(Wait(0.1f));
+        gameObject.SetActive(false);        // 박스 비활성화
     }
 
-    IEnumerator SpawnItemWithEffect()       // 애니메이션 재생
+    public void ForcedOpen()       // 강제 오픈, gripper가 최종 위치까지 도달하였을 때 사용, 애니메이션 미출력
     {
-        yield return new WaitForSeconds(0.7f);
+        if (isOpened || heldByGripper)  // 이미 열려있거나 Gripper에 붙잡혀 있다면
+        {
+            Debug.Log("이미 열려있거나 Gripper가 붙잡고 있지만 강제 오픈이 실행되었습니다.");
+            return;
+        }
 
+        isOpened = true;        // 열림 상태 설정
+        gameObject.SetActive(false);        // 박스 비활성화
+        SpawnItemWithEffect();
+
+    }
+
+    public void SpawnItemWithEffect()       // 이펙트 재생
+    {
         GameObject effect = ObjectPoolManager.Instance.SpawnFromPool("SmokeEffect", transform.position, Quaternion.identity);
         var ps = effect.GetComponent<ParticleSystem>();
         if (ps != null) ps.Play();
@@ -95,11 +110,14 @@ public class BoxOpen : MonoBehaviour
         if (itemPrefabs.Length > 0)
         {
             int rand = Random.Range(0, itemPrefabs.Length);
-            Instantiate(itemPrefabs[rand], itemSpawnPoint.position, Quaternion.identity);
+            Quaternion randomRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f)); // Z축만 랜덤하게 설정
+            Instantiate(itemPrefabs[rand], itemSpawnPoint.position, randomRotation);
         }
+    }
 
-        yield return new WaitForSeconds(0.1f);
-        gameObject.SetActive(false);        // 박스 비활성화
+    IEnumerator Wait(float sec)  // sec초 대기
+    {
+        yield return new WaitForSeconds(sec);
     }
 
     public void SetHeldByGripper(bool isHeld, Gripper gripper = null)

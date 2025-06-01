@@ -2,45 +2,45 @@ using UnityEngine;
 
 public class Gripper : MonoBehaviour
 {
-    public Transform holdPoint;     // ¹Ú½º¸¦ ºÙÀâÀ» À§Ä¡
-    private GameObject heldBox;     // ÇöÀç ºÙÀâ°í ÀÖ´Â ¹Ú½º
+    public Transform holdPoint;     // ë°•ìŠ¤ë¥¼ ë¶™ì¡ì„ ìœ„ì¹˜
+    private GameObject heldBox;     // í˜„ì¬ ë¶™ì¡ê³  ìˆëŠ” ë°•ìŠ¤
 
-    public void Grab(GameObject box)    // ¹Ú½º ºÙÀâ±â
+    public void Grab(GameObject box)    // ë°•ìŠ¤ ë¶™ì¡ê¸°
     {
-        Debug.Log($"[Gripper.cs] : ½ºÆùµÈ ÁöÁ¡ : {this.gameObject.transform.position}");
+        Debug.Log($"[Gripper.cs] : ìŠ¤í°ëœ ì§€ì  : {this.gameObject.transform.position}");
         heldBox = box;
-        box.transform.SetParent(holdPoint);     // ¹Ú½º¸¦ GripperÀÇ ÀÚ½ÄÀ¸·Î ¼³Á¤
+        box.transform.SetParent(holdPoint);     // ë°•ìŠ¤ë¥¼ Gripperì˜ ìì‹ìœ¼ë¡œ ì„¤ì •
         box.transform.localPosition = Vector3.zero;
 
-        var rb = box.GetComponent<Rigidbody>();     // ¹Ú½ºÀÇ RigidBox ºñÈ°¼ºÈ­
+        var rb = box.GetComponent<Rigidbody>();     // ë°•ìŠ¤ì˜ RigidBox ë¹„í™œì„±í™”
         if (rb != null) rb.isKinematic = true;
 
         var interactable = box.GetComponent<BoxOpen>();
         if (interactable != null)
         {
-            interactable.SetHeldByGripper(true, this); // ÀÚ±â ÀÚ½Å Àü´Ş
+            interactable.SetHeldByGripper(true, this); // ìê¸° ìì‹  ì „ë‹¬
         }
     }
 
-    public void Release()   // Àâ°í ÀÖ´ø ¹Ú½º ³öÁÖ±â
+    public void Release()   // ì¡ê³  ìˆë˜ ë°•ìŠ¤ ë†”ì£¼ê¸°
     {
         if (heldBox == null) return;
 
-        heldBox.transform.SetParent(null);      // ÀÚ½Ä°ü°è ÇØÁ¦
+        heldBox.transform.SetParent(null);      // ìì‹ê´€ê³„ í•´ì œ
 
-        var rb = heldBox.GetComponent<Rigidbody>();     // ¹Ú½ºÀÇ RigidBox ´Ù½Ã È°¼ºÈ­
+        var rb = heldBox.GetComponent<Rigidbody>();     // ë°•ìŠ¤ì˜ RigidBox ë‹¤ì‹œ í™œì„±í™”
         if (rb != null) rb.isKinematic = false;
 
-        var interactable = heldBox.GetComponent<BoxOpen>();     // Gripper Á¤º¸ Á¦°Å
+        var interactable = heldBox.GetComponent<BoxOpen>();     // Gripper ì •ë³´ ì œê±°
         if (interactable != null)
         {
             interactable.SetHeldByGripper(false, null); 
         }
 
-        heldBox = null;     // ÂüÁ¶ ÃÊ±âÈ­
+        heldBox = null;     // ì°¸ì¡° ì´ˆê¸°í™”
     }
 
-    public void OpenBoxIfHolding()      // Gripper°¡ ÃÖÁ¾ À§Ä¡±îÁö µµ´ŞÇßÀ» ¶§, Release ÈÄ ÀÚµ¿À¸·Î ¹Ú½º¸¦ Open
+    public void OpenBoxIfHolding()      // Gripperê°€ ìµœì¢… ìœ„ì¹˜ê¹Œì§€ ë„ë‹¬í–ˆì„ ë•Œ, Release í›„ ìë™ìœ¼ë¡œ ë°•ìŠ¤ë¥¼ Open
     {
         if (heldBox != null)
         {
@@ -48,18 +48,18 @@ public class Gripper : MonoBehaviour
             if (boxScript != null)
             {
                 Release();
-                boxScript.TryOpen();
+                boxScript.ForcedOpen();
             }
         }
     }
 
-    public void ResetGripper()      // Gripper°¡ Pool·Î µ¹¾Æ°¥ ¶§ ÃÊ±âÈ­
+    public void ResetGripper()      // Gripperê°€ Poolë¡œ ëŒì•„ê°ˆ ë•Œ ì´ˆê¸°í™”
     {
         if (heldBox != null)
         {
             Release();
         }
-        // -> ÀÌ°Å ¶§¹®¿¡ Waypoint1ÀÇ À§Ä¡°¡ ¾Æ´Ñ (0,0,0) ¿¡¼­ ½ºÆùÀÌ µÇ¾úÀ½. ½ºÆù¹®Á¦ÇØ°á.
+        // -> ì´ê±° ë•Œë¬¸ì— Waypoint1ì˜ ìœ„ì¹˜ê°€ ì•„ë‹Œ (0,0,0) ì—ì„œ ìŠ¤í°ì´ ë˜ì—ˆìŒ. ìŠ¤í°ë¬¸ì œí•´ê²°.
         //transform.position = Vector3.zero;
         //transform.rotation = Quaternion.identity;
     }
