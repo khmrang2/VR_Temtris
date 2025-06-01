@@ -94,7 +94,8 @@ public class GameManager : MonoBehaviour
         }
 
         // 랜덤 시드 고정
-        Random.InitState(data.randomSeed);
+        // Random.InitState(data.randomSeed);
+        spawnManager.randomSeed = data.randomSeed;
 
         // 블록 생성 간격 세팅
         if (spawnManager != null)
