@@ -33,12 +33,20 @@ public class EdgeCuttingManager : MonoBehaviour
             while (root.parent != null)
                 root = root.parent;
 
-            if (root.CompareTag("Block"))
+            if (!root.CompareTag("Block")) continue;
+
+            float ratio = trigger.GetBlockFillRatio(root.gameObject);
+            if (ratio >= 0.98f)
             {
-                edgeCutter.Cut(root.gameObject, upperPos, upperNormal);
-                //edgeCutter.Cut(root.gameObject, lowerPos, lowerNormal);
+                Debug.Log($"[CuttingManager] 블럭의 하위 collider 기준 98% 포함됨 → 삭제 처리");
+                Destroy(root.gameObject);
                 cutCount++;
+                continue;
             }
+
+            // 절단 조건에 맞는 경우에만 절단
+            edgeCutter.Cut(root.gameObject, upperPos, upperNormal);
+            cutCount++;
         }
 
         if (cutCount >= blocks.Count * 0.8f)

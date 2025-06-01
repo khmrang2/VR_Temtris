@@ -88,8 +88,14 @@ public class LineTrigger : MonoBehaviour
         }
 
         bool allSleeping = true;
-        foreach (var kvp in blockColliders)
+        foreach (var kvp in blockColliders.ToList()) // 리스트 복사 → 수정 중 안전
         {
+            if (kvp.Key == null)
+            {
+                blockColliders.Remove(kvp.Key); // Clean up
+                continue;
+            }
+
             Rigidbody rb = kvp.Key.GetComponent<Rigidbody>();
             if (rb != null && !rb.IsSleeping())
             {
@@ -130,6 +136,31 @@ public class LineTrigger : MonoBehaviour
         }
     }
 
+    public float GetBlockFillRatio(GameObject block)
+    {
+        if (!blockColliders.ContainsKey(block)) return 0f;
+
+        float totalVolume = 0f;
+        float intersectVolume = 0f;
+
+        Collider triggerCol = GetComponent<Collider>(); // 트리거 자신
+
+        // 블럭의 모든 collider
+        Collider[] allCols = block.GetComponents<Collider>();
+
+        foreach (var col in allCols)
+        {
+            float colVol = EstimateVolume(col); // 원래 부피
+            totalVolume += colVol;
+
+            // 트리거와의 실제 겹치는 부피만 측정
+            intersectVolume += EstimateIntersectionVolume(triggerCol, col);
+        }
+
+        if (totalVolume == 0f) return 0f;
+
+        return intersectVolume / totalVolume;
+    }
     public void ResetTrigger()
     {
         currentVolume = 0f;
@@ -143,6 +174,22 @@ public class LineTrigger : MonoBehaviour
     {
         Bounds b = col.bounds;
         return b.size.x * b.size.y * b.size.z;
+    }
+
+    private float EstimateIntersectionVolume(Collider trigger, Collider col)
+    {
+        Bounds a = trigger.bounds;
+        Bounds b = col.bounds;
+
+        Vector3 min = Vector3.Max(a.min, b.min);
+        Vector3 max = Vector3.Min(a.max, b.max);
+
+        Vector3 size = max - min;
+
+        if (size.x <= 0 || size.y <= 0 || size.z <= 0)
+            return 0f;
+
+        return size.x * size.y * size.z;
     }
 
     private GameObject FindTaggedParent(Transform child)
@@ -162,21 +209,28 @@ public class LineTrigger : MonoBehaviour
     private void CleanUpNullEntries()
     {
         var toRemove = colliderVolumes
-            .Where(kvp => kvp.Key == null || kvp.Key.attachedRigidbody == null)
+            .Where(kvp => kvp.Key == null || kvp.Key.Equals(null) || kvp.Key.attachedRigidbody == null)
             .Select(kvp => kvp.Key)
             .ToList();
 
         foreach (var col in toRemove)
         {
-            currentVolume -= colliderVolumes[col];
+            if (col == null) continue;
+
+            if (colliderVolumes.ContainsKey(col))
+                currentVolume -= colliderVolumes[col];
+
             colliderVolumes.Remove(col);
 
-            GameObject block = FindTaggedParent(col.transform);
-            if (block != null && blockColliders.ContainsKey(block))
+            if (col != null && col.transform != null)
             {
-                blockColliders[block].Remove(col);
-                if (blockColliders[block].Count == 0)
-                    blockColliders.Remove(block);
+                GameObject block = FindTaggedParent(col.transform);
+                if (block != null && blockColliders.ContainsKey(block))
+                {
+                    blockColliders[block].Remove(col);
+                    if (blockColliders[block].Count == 0)
+                        blockColliders.Remove(block);
+                }
             }
         }
     }
