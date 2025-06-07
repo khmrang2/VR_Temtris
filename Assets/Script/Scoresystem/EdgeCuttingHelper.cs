@@ -108,15 +108,13 @@ public class EdgeCuttingHelper : MonoBehaviour
     {
         // 유저는 막고, 블록은 들어가게 구분짓기 위한 레이어 추가.
         part.layer = LayerMask.NameToLayer("Block");
+        part.tag = "Block";
 
         part.transform.SetPositionAndRotation(original.position, original.rotation);
         part.transform.localScale = original.localScale;
 
-        part.name = "Upper_Hull";
-        var mf = part.GetComponent<MeshFilter>();
-        var mc = part.AddComponent<MeshCollider>();
-        mc.sharedMesh = mf.sharedMesh;
-        mc.convex = true;
+        // Collider 변경 → BoxCollider 사용
+        var box = part.AddComponent<BoxCollider>();
 
         var rb = part.AddComponent<Rigidbody>();
         rb.useGravity = true;
