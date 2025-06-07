@@ -36,10 +36,18 @@ public class AttachableOnCollision : MonoBehaviour
             Debug.Log($"블럭 {gameObject.name} 의 FixedJoint 해제됨");
         }
 
-        if (transform.parent != null)
+        if (transform.parent != null) // 자식 오브젝트 기준 관계 해제
         {
             transform.SetParent(null, true); // world position 유지
             Debug.Log($"블럭 {gameObject.name} 의 부모 연결 해제됨");
+        }
+        else if (transform.childCount > 0) // 부모 오브젝트 기준 관계 해제
+        {
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                transform.GetChild(i).SetParent(null, true);
+            }
+            Debug.Log($"블럭 {gameObject.name} 의 자식 연결 해제됨");
         }
     }
 }
