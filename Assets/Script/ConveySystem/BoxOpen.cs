@@ -19,6 +19,8 @@ public class BoxOpen : MonoBehaviour
     [SerializeField] private bool heldByGripper = true;      // Gripper에 의해 붙잡히고 있는 지
     [SerializeField] private Gripper holdingGripper = null;      // 붙잡히고 있는 Gripper 참조
 
+    private int _itemIndex = 0;
+
     private void Awake()        // 플레이어에 의한 Grap 확인
     {
         grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
@@ -107,12 +109,24 @@ public class BoxOpen : MonoBehaviour
         var ps = effect.GetComponent<ParticleSystem>();
         if (ps != null) ps.Play();
 
-        if (itemPrefabs.Length > 0)
+
+        if (itemPrefabs != null && itemPrefabs.Length > 0 && _itemIndex >= 0 && _itemIndex < itemPrefabs.Length)
         {
+            Quaternion randomRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
+            Instantiate(itemPrefabs[_itemIndex], itemSpawnPoint.position, randomRotation);
+        }
+        else
+        {
+            Debug.LogWarning($"[BoxOpen] 잘못된 itemIndex: {_itemIndex}");
+        }
+        // 실제 item(=tetrio)를 생성하는 부분. 
+        /*if (itemPrefabs.Length > 0)
+        {
+            // seed를 통해서 Random.initState(int)로 시드를 항상 고정 시키자.
             int rand = Random.Range(0, itemPrefabs.Length);
             Quaternion randomRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f)); // Z축만 랜덤하게 설정
             Instantiate(itemPrefabs[rand], itemSpawnPoint.position, randomRotation);
-        }
+        }*/
     }
 
     IEnumerator Wait(float sec)  // sec초 대기
@@ -126,8 +140,9 @@ public class BoxOpen : MonoBehaviour
         holdingGripper = gripper;
     }
 
-    public void ResetBox()      // Pool로 돌아갈 시 초기화
+    public void ResetBox(int index)      // Pool로 돌아갈 시 초기화
     {
+        _itemIndex = index;
         isOpened = false;
         heldByGripper = false;
         holdingGripper = null;

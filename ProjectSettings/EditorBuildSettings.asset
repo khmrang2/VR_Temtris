@@ -23,7 +23,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TestScene/StageScene3.unity
     guid: cbfe018e706e4cc4788f47d017d598a2
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/TestScene/StartScene.unity
     guid: bf20f9763e2f6484494b05c6e8a8824a
   m_configObjects:
