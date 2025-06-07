@@ -12,15 +12,10 @@ public class Cutting_knife : MonoBehaviour
     public LayerMask sliceableLayer;
 
     public Material crossSectionMaterial;
-    public float cutForce = 2000;
+    public float cutForce = 2000f;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public GameObject fallbackPrefab; // BlockSliceInfo가 없을 경우 사용할 프리팹
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         bool hasHit = Physics.Linecast(startSlicePoint.position, endSlicePoint.position, out RaycastHit hit, sliceableLayer);
@@ -29,7 +24,6 @@ public class Cutting_knife : MonoBehaviour
             GameObject target = hit.transform.gameObject;
             Slice(target);
         }
-
     }
 
     public void Slice(GameObject target)
@@ -52,17 +46,14 @@ public class Cutting_knife : MonoBehaviour
         Vector3 planeNormal = Vector3.Cross(sliceDir, velocity).normalized;
         Vector3 planePos = endSlicePoint.position;
 
-        Debug.DrawRay(planePos, planeNormal * 2f, Color.red, 2f); // 시각화
-
-        SlicedHull hull = target.Slice(planePos, planeNormal);
-
+        SlicedHull hull = target.Slice(planePos, planeNormal, crossSectionMaterial);
         if (hull != null)
         {
             GameObject upper = hull.CreateUpperHull(target, crossSectionMaterial);
-            SetupSlicedComponent(upper);
-
             GameObject lower = hull.CreateLowerHull(target, crossSectionMaterial);
-            SetupSlicedComponent(lower);
+
+            SetupSlicedPart(lower, target.transform);
+            SetupSlicedPart(upper, target.transform);
 
             Destroy(target);
         }
@@ -72,11 +63,21 @@ public class Cutting_knife : MonoBehaviour
         }
     }
 
-    public void SetupSlicedComponent(GameObject slicedObject)
+    private void SetupSlicedPart(GameObject part, Transform original)
     {
-        Rigidbody rb = slicedObject.GetComponent<Rigidbody>();
-        BoxCollider collider = slicedObject.AddComponent<BoxCollider>();
-        rb.AddExplosionForce(cutForce, slicedObject.transform.position,1);
+        part.layer = LayerMask.NameToLayer("Block");
+        part.tag = "Block";
 
+        part.transform.SetPositionAndRotation(original.position, original.rotation);
+        part.transform.localScale = original.localScale;
+
+        // Collider 교체
+        foreach (var col in part.GetComponents<Collider>())
+            Destroy(col);
+        part.AddComponent<BoxCollider>();
+
+        // Rigidbody 추가
+        var rb = part.AddComponent<Rigidbody>();
+        rb.useGravity = true;
     }
 }
