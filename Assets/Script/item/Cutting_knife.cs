@@ -52,8 +52,8 @@ public class Cutting_knife : MonoBehaviour
             GameObject upper = hull.CreateUpperHull(target, crossSectionMaterial);
             GameObject lower = hull.CreateLowerHull(target, crossSectionMaterial);
 
-            SetupSlicedPart(lower, target.transform);
-            SetupSlicedPart(upper, target.transform);
+            SliceUtility.SetupSlicedPart(lower, target.transform);
+            SliceUtility.SetupSlicedPart(upper, target.transform);
 
             Destroy(target);
         }
@@ -61,23 +61,5 @@ public class Cutting_knife : MonoBehaviour
         {
             Debug.LogWarning("Slicing failed: Hull is null. (평면이 잘못됐을 수 있음)");
         }
-    }
-
-    private void SetupSlicedPart(GameObject part, Transform original)
-    {
-        part.layer = LayerMask.NameToLayer("Block");
-        part.tag = "Block";
-
-        part.transform.SetPositionAndRotation(original.position, original.rotation);
-        part.transform.localScale = original.localScale;
-
-        // Collider 교체
-        foreach (var col in part.GetComponents<Collider>())
-            Destroy(col);
-        part.AddComponent<BoxCollider>();
-
-        // Rigidbody 추가
-        var rb = part.AddComponent<Rigidbody>();
-        rb.useGravity = true;
     }
 }
