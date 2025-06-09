@@ -28,7 +28,7 @@ public class BlockRemover : MonoBehaviour
             return;
         }
 
-        Debug.Log($"삭제 횟수 {removeCount} 남음.");
+        Debug.Log($"블럭 삭제 횟수 {removeCount} 남음.");
 
     }
 }

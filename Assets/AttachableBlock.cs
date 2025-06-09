@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class AttachableOnCollision : MonoBehaviour
@@ -11,9 +12,20 @@ public class AttachableOnCollision : MonoBehaviour
         if (!canAttach) return;
 
         GameObject other = collision.gameObject;
-        if (((1 << other.layer) & blockLayer) == 0 || other == gameObject) return;
+        if (((1 << other.layer) & blockLayer) == 0 || other == gameObject) return; // layer가 blockLayer가 아니면 종료
 
-        BlockConnectHelper.ConnectByCollision(gameObject, other);
+        ContactPoint contact = collision.contacts[0];
+        Vector3 contactNormal = contact.normal;
+
+        // 충돌 지점의 면이 앞/뒤면일시 종료
+        if (BlockConnectHelper.IsForwardOrBackward(contactNormal, transform))
+        {
+            Debug.Log("앞/뒤 방향 블럭은 붙일 수 없습니다");
+            StartCoroutine(ResetCanAttachAfterDelay(0.2f)); // 0.2초 쿨타임
+            return;
+        }
+
+        BlockConnectHelper.ConnectByCollision(gameObject, other); // 내부에서 다시 앞.뒤면 확인, 아닐 시 오류를 발생시킴
 
         canAttach = false;
         Debug.Log($"{other.name} 와(과)의 충돌로 붙었습니다.");
@@ -49,5 +61,13 @@ public class AttachableOnCollision : MonoBehaviour
             }
             Debug.Log($"블럭 {gameObject.name} 의 자식 연결 해제됨");
         }
+    }
+
+    // 딜레이 주기
+    private IEnumerator ResetCanAttachAfterDelay(float delay)
+    {
+        canAttach = false;
+        yield return new WaitForSeconds(delay);
+        canAttach = true;
     }
 }
