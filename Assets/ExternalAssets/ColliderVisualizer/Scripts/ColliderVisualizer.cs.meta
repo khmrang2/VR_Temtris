@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 0de9c2653c954307856264ec248eab4d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - meshBox: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  - meshSphere: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  - meshCylinder: {fileID: 4300000, guid: 3554d6a17caef8148b1220e9e2e79454, type: 2}
+  - upperHalfSphere: {fileID: 4300000, guid: ea110afe4078082468955a8ec59d1ee0, type: 2}
+  - lowerHalfSphere: {fileID: 4300000, guid: 2150e3d3605f3f54087ca225c7af31aa, type: 2}
+  - coloredShader: {fileID: 4800000, guid: 38859b428448107418ad51fa96d642e7, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
