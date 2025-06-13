@@ -168,23 +168,31 @@ public class LineTrigger : MonoBehaviour
 
         xRanges.Sort((a, b) => a.xMin.CompareTo(b.xMin));
         float coveredX = 0f;
-        float currentStart = float.MinValue;
-        float currentEnd = float.MinValue;
 
-        foreach (var (xMin, xMax) in xRanges)
+        if (xRanges.Count > 0)
         {
-            if (xMin > currentEnd)
+            float currentStart = xRanges[0].xMin;
+            float currentEnd = xRanges[0].xMax;
+
+            for (int i = 1; i < xRanges.Count; i++)
             {
-                coveredX += currentEnd - currentStart;
-                currentStart = xMin;
-                currentEnd = xMax;
+                var (xMin, xMax) = xRanges[i];
+                if (xMin > currentEnd)
+                {
+                    // 현재 덩어리 종료 → 누적
+                    coveredX += currentEnd - currentStart;
+                    currentStart = xMin;
+                    currentEnd = xMax;
+                }
+                else
+                {
+                    // 병합 가능 → 범위 확장
+                    currentEnd = Mathf.Max(currentEnd, xMax);
+                }
             }
-            else
-            {
-                currentEnd = Mathf.Max(currentEnd, xMax);
-            }
+            // 마지막 병합 범위 반영
+            coveredX += currentEnd - currentStart;
         }
-        coveredX += currentEnd - currentStart;
 
         return Mathf.Clamp01(coveredX / triggerXSize);
     }

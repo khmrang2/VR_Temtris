@@ -99,8 +99,15 @@ public class BoxOpen : MonoBehaviour
 
         isOpened = true;        // 열림 상태 설정
         gameObject.SetActive(false);        // 박스 비활성화
-        SpawnItemWithEffect();
 
+        // 강제 상황에서 아이템 index라면 (예: 7 이상), 블록 index로 대체
+        if (_itemIndex >= 7)
+        {
+            _itemIndex = Random.Range(0, 7); // 블록 인덱스만
+            Debug.Log($"[ForcedOpen] 아이템 index({_itemIndex}) 무시됨 → 블록 index({_itemIndex})로 대체");
+        }
+
+        SpawnItemWithEffect();
     }
 
     public void SpawnItemWithEffect()       // 이펙트 재생

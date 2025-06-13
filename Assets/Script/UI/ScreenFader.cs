@@ -49,13 +49,13 @@ public class ScreenFader : MonoBehaviour
         Material mat = fadeImage.material;
         Color c = mat.color;
         float t = 0f;
-        Debug.Log(c.ToString());
+        //Debug.Log(c.ToString());
         while (t < fadeDuration)
         {
             t += Time.deltaTime;
             float a = Mathf.Lerp(startAlpha, endAlpha, t / fadeDuration);
             mat.color = new Color(c.r, c.g, c.b, a);
-            Debug.Log($"Alpha: {a}"); // 👈 알파 변화 로그 찍기
+            //Debug.Log($"Alpha: {a}"); // 👈 알파 변화 로그 찍기
             yield return null;
         }
     }

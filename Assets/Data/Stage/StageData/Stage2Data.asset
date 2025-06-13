@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abc8bdc421577944e82ca9b6bbcbff4b, type: 3}
   m_Name: Stage2Data
   m_EditorClassIdentifier: 
-  blockSpawnInterval: 1
+  blockSpawnInterval: 4.5
   randomSeed: 23515
-  timeLimit: 300
-  pointGoal: 200
+  timeLimit: 600
+  pointGoal: 100

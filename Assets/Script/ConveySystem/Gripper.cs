@@ -24,6 +24,7 @@ public class Gripper : MonoBehaviour
 
     public void Release()   // 잡고 있던 박스 놔주기
     {
+        Debug.Log("[Gripper.cs] 잡고 있던 박스를 놔줍니다. ");
         if (heldBox == null) return;
 
         heldBox.transform.SetParent(null);      // 자식관계 해제

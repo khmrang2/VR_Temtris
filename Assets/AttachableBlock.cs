@@ -9,6 +9,7 @@ public class AttachableOnCollision : MonoBehaviour
     // 해당 오브젝트의 collider가 다른 collider와 부딪히면 실행됨
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.layer != blockLayer) return;
         if (!canAttach) return;
 
         GameObject other = collision.gameObject;

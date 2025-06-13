@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blockSpawnInterval: 4
   randomSeed: 2135
-  timeLimit: 500
-  pointGoal: 300
+  timeLimit: 600
+  pointGoal: 150

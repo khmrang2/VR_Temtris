@@ -5,24 +5,34 @@ public class ObjectPoolManager : MonoBehaviour
 {
     public static ObjectPoolManager Instance;
 
+    [Header("Optional")]
+    [SerializeField] private Transform poolRootParent;  // Hierarchy ì •ë¦¬ìš© ë¶€ëª¨
+
     [System.Serializable]
     public class Pool
     {
         public string tag;
         public GameObject prefab;
-        public int size;        // »ı¼ºÇÒ ¿ÀºêÁ§Æ® ¼ö
+        public int size;        // ìƒì„±í•  ì˜¤ë¸Œì íŠ¸ ìˆ˜
     }
 
-    public List<Pool> pools;    // ¿¡µğÅÍ¿¡¼­ ¼³Á¤ÇÑ Ç® ¸ñ·Ï, ¹Ú½º, Gripper, ÀÌÆåÆ®
+    public List<Pool> pools;    // ì—ë””í„°ì—ì„œ ì„¤ì •í•œ í’€ ëª©ë¡, ë°•ìŠ¤, Gripper, ì´í™íŠ¸
     private Dictionary<string, Queue<GameObject>> poolDictionary;
 
     void Awake()
     {
         Instance = this;
 
+        // poolRootParentê°€ ì§€ì •ë˜ì§€ ì•Šì•˜ìœ¼ë©´ ìë™ ìƒì„±
+        if (poolRootParent == null)
+        {
+            GameObject tempParent = new GameObject("tempGameObjects");
+            poolRootParent = tempParent.transform;
+        }
+
         poolDictionary = new Dictionary<string, Queue<GameObject>>();
 
-        foreach (var pool in pools)     // °¢ Ç®¿¡ ÃÊ±â ¿ÀºêÁ§Æ® »ı¼º
+        foreach (var pool in pools)     // ê° í’€ì— ì´ˆê¸° ì˜¤ë¸Œì íŠ¸ ìƒì„±
         {
             if (pool.prefab == null)
             {
@@ -34,7 +44,7 @@ public class ObjectPoolManager : MonoBehaviour
 
             for (int i = 0; i < pool.size; i++)
             {
-                GameObject obj = Instantiate(pool.prefab);
+                GameObject obj = Instantiate(pool.prefab, poolRootParent);
                 obj.SetActive(false);
                 objectPool.Enqueue(obj);
             }
@@ -44,10 +54,16 @@ public class ObjectPoolManager : MonoBehaviour
         }
     }
 
-    // Ç®¿¡¼­ ºñÈ°¼ºÈ­µÈ ¿ÀºêÁ§Æ® ÇÏ³ª¸¦ ²¨³» ¼ÒÈ¯(¿ÀºêÁ§Æ® ¹İÈ¯)
+    /// <summary>
+    /// í’€ì—ì„œ ë¹„í™œì„±í™”ëœ ì˜¤ë¸Œì íŠ¸ í•˜ë‚˜ë¥¼ êº¼ë‚´ ì†Œí™˜(ì˜¤ë¸Œì íŠ¸ ë°˜í™˜)
+    /// </summary>
+    /// <param name="tag"></param>
+    /// <param name="position"></param>
+    /// <param name="rotation"></param>
+    /// <returns></returns>
     public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
-        if (!poolDictionary.ContainsKey(tag))       // Ã£À¸·Á´Â ÅÂ±×°¡ ¾øÀ¸¸é null
+        if (!poolDictionary.ContainsKey(tag))       // ì°¾ìœ¼ë ¤ëŠ” íƒœê·¸ê°€ ì—†ìœ¼ë©´ null
         {
             Debug.LogWarning($"Pool with tag {tag} doesn't exist.");
             return null;
@@ -57,21 +73,22 @@ public class ObjectPoolManager : MonoBehaviour
 
         foreach (GameObject obj in pool)
         {
-            if (!obj.activeInHierarchy)     // ¾ÆÁ÷ »ç¿ëµÇÁö ¾ÊÀº ¿ÀºêÁ§Æ®¸¦ Ã£À½
+            if (!obj.activeInHierarchy)     // ì•„ì§ ì‚¬ìš©ë˜ì§€ ì•Šì€ ì˜¤ë¸Œì íŠ¸ë¥¼ ì°¾ìŒ
             {
+                obj.transform.SetParent(poolRootParent);  // ë¶€ëª¨ë¡œ ì¬ì§€ì • í˜¹ì‹œë‚˜..
                 obj.transform.position = position;
                 obj.transform.rotation = rotation;
-                obj.SetActive(true);        // ¿ÀºêÁ§Æ® È°¼ºÈ­
+                obj.SetActive(true);        // ì˜¤ë¸Œì íŠ¸ í™œì„±í™”
                 return obj;
             }
         }
 
-        // ¸ğµç ¿ÀºêÁ§Æ®°¡ »ç¿ë ÁßÀÌ¶ó¸é °æ°í
+        // ëª¨ë“  ì˜¤ë¸Œì íŠ¸ê°€ ì‚¬ìš© ì¤‘ì´ë¼ë©´ ê²½ê³ 
         Debug.LogWarning($"[POOL] No available inactive object in pool '{tag}'. Consider increasing size.");
         return null;
     }
 
-    // ¸ğµç Ç®ÀÇ ¿ÀºêÁ§Æ®¸¦ ºñÈ°¼ºÈ­½ÃÅ´
+    // ëª¨ë“  í’€ì˜ ì˜¤ë¸Œì íŠ¸ë¥¼ ë¹„í™œì„±í™”ì‹œí‚´
     public void ResetAllObjects()
     {
         foreach (var queue in poolDictionary.Values)
