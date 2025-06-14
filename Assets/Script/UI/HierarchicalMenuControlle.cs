@@ -58,7 +58,25 @@ public class HierarchicalMenuController : MonoBehaviour
         panelGO.transform.localPosition = localPos;
 
         TMP_Text title = panelGO.transform.Find("Title")?.GetComponent<TMP_Text>();
-        if (title) title.text = node.label;       // ‘Title’ 오브젝트가 있을 때만
+        if (title)
+        {
+            if (node.label == "Scenes")
+            {
+                var mapManager = FindObjectOfType<MapSelectionManager>();
+                if (mapManager != null)
+                {
+                    title.text = $"{node.label} ({mapManager.SelectedMap})";
+                }
+                else
+                {
+                    title.text = $"{node.label} (No MapManager)";
+                }
+            }
+            else
+            {
+                title.text = node.label;
+            }
+        }
 
         activePanels.Add(panelGO);
 

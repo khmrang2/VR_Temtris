@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   label: Graphic
   icon: {fileID: 0}
+  closeMenuOnSelect: 0
   onSelect:
     m_PersistentCalls:
       m_Calls: []
-  children: []
+  children:
+  - {fileID: 11400000, guid: 38afb8815e66b154e92e835180ef1050, type: 2}
+  - {fileID: 11400000, guid: fefc8e311f9e35346802eac748061fbb, type: 2}

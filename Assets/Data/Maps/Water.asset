@@ -9,18 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 058b1a1d60cd52548b7bc96757a210b9, type: 3}
-  m_Name: StageNode 3
+  m_Script: {fileID: 11500000, guid: 1edcec5ebf4282841af107a08865be3f, type: 3}
+  m_Name: Water
   m_EditorClassIdentifier: 
-  label: Stage3
+  label: Water
   icon: {fileID: 0}
   closeMenuOnSelect: 0
   onSelect:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 11400000}
-        m_TargetAssemblyTypeName: Stagenode, Assembly-CSharp
-        m_MethodName: OnSelectStage
+        m_TargetAssemblyTypeName: MapNode, Assembly-CSharp
+        m_MethodName: OnSelectMap
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -31,7 +31,4 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   children: []
-  desertSceneName: 
-  waterSceneName: 
-  stageData: {fileID: 11400000, guid: 589ac8778c4ebc941b701379bb4cf35c, type: 2}
-  sceneLoader: {fileID: 11400000, guid: 0ea07c1644464e0438bef403ed2b0479, type: 2}
+  mapType: 1
