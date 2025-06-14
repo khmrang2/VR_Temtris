@@ -1,5 +1,7 @@
 using UnityEngine;
 using EzySlice;
+using Unity.VisualScripting;
+using TMPro;
 
 public class EdgeCuttingHelper : MonoBehaviour
 {
@@ -34,12 +36,15 @@ public class EdgeCuttingHelper : MonoBehaviour
         var hull = target.Slice(planePos, planeNormal);
         if (hull == null)
         {
-            Debug.LogWarning($"[EdgeCuttingHelper] '{target.name}' 절단 실패 - Hull이 null입니다.");
+            Debug.LogWarning($"[EdgeCuttingHelper] '{target.name}' -> 원본을 아예 삭제 해버립니다.");
+            Destroy(target);
             return;
         }
 
         Debug.Log($"[EdgeCuttingHelper] '{target.name}' 절단 성공");
 
+        //crossSectionMaterial = GetCrossSectionMaterial(target);
+        //Debug.Log($"{target.name}의 머터리얼 : {crossSectionMaterial.name}을 복사해옵니다.");
         GameObject upper = hull.CreateUpperHull(target, crossSectionMaterial);
         GameObject lower = hull.CreateLowerHull(target, crossSectionMaterial);
 
@@ -71,11 +76,17 @@ public class EdgeCuttingHelper : MonoBehaviour
     }
 
     /// <summary>
-    /// 대상 오브젝트의 첫 머티리얼 반환
+    /// 대상 오브젝트의 첫 머티리얼 반환 (자기 자신만)
     /// </summary>
     private Material GetFirstMaterialFromTarget(GameObject target)
     {
-        Renderer r = target.GetComponentInChildren<Renderer>();
-        return r != null ? r.sharedMaterial : null;
+        Renderer r = target.GetComponent<Renderer>();
+        if (r == null)
+        {
+            Debug.LogWarning($"[GetFirstMaterialFromTarget] '{target.name}'에 Renderer가 없습니다.");
+            return null;
+        }
+
+        return r.sharedMaterial;
     }
 }

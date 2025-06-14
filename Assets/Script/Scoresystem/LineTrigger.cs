@@ -114,7 +114,8 @@ public class LineTrigger : MonoBehaviour
         // ✅ 변경된 절단 조건 판단 (XZ 평면 기준 X 방향 점유율 계산)
         if (isStable)
         {
-            float fillRatio = CalculateXLineFillRatioAtCenterPlane();
+            //float fillRatio = CalculateXLineFillRatioAtCenterPlane();
+            float fillRatio = CalculateXZFillRatioAtCenterPlane();
             Debug.Log($"[LineTrigger] X 평면 점유율: {fillRatio:P1}");
 
             if (fillRatio >= _triggerThreshold)
@@ -196,6 +197,101 @@ public class LineTrigger : MonoBehaviour
 
         return Mathf.Clamp01(coveredX / triggerXSize);
     }
+
+    /// <summary>
+    /// 트리거의 중심 y위치에서 블럭들이 차지한 X방향 * Z방향 면적의 비율을 계산.
+    /// </summary>
+    /// <returns></returns>
+    private float CalculateXZFillRatioAtCenterPlane()
+    {
+        var bounds = GetComponent<BoxCollider>().bounds;
+        float planeY = bounds.center.y;
+        float triggerArea = bounds.size.x * bounds.size.z;
+
+        HashSet<Rect> uniqueRects = new HashSet<Rect>();
+
+        foreach (var kvp in blockColliders)
+        {
+            if (kvp.Key == null) continue;
+
+            foreach (var col in kvp.Key.GetComponents<Collider>())
+            {
+                if (col == null) continue;
+                Bounds b = col.bounds;
+
+                if (planeY >= b.min.y && planeY <= b.max.y)
+                {
+                    uniqueRects.Add(new Rect(b.min.x, b.min.z, b.size.x, b.size.z));
+                }
+            }
+        }
+
+        float coveredArea = MergeAndCalculateArea2D(uniqueRects.ToList());
+        float ratio = Mathf.Clamp01(coveredArea / triggerArea);
+
+        //Debug.Log($"[LineTrigger] XZ 평면 점유율: {ratio:P1}");
+        return ratio;
+    }
+
+    private float MergeAndCalculateArea2D(List<Rect> rects)
+    {
+        if (rects.Count == 0) return 0f;
+
+        // X축 기준으로 정렬
+        rects.Sort((a, b) => a.x.CompareTo(b.x));
+
+        float totalArea = 0f;
+        float currentStartX = rects[0].x;
+        float currentEndX = rects[0].x + rects[0].width;
+        float currentStartZ = rects[0].y;
+        float currentEndZ = rects[0].y + rects[0].height;
+
+        for (int i = 1; i < rects.Count; i++)
+        {
+            Rect rect = rects[i];
+            float rectStartX = rect.x;
+            float rectEndX = rect.x + rect.width;
+            float rectStartZ = rect.y;
+            float rectEndZ = rect.y + rect.height;
+
+            // X축 방향으로 겹치는지 확인
+            if (rectStartX <= currentEndX)
+            {
+                // Z축 방향으로 겹치는지 확인
+                if (rectStartZ <= currentEndZ && rectEndZ >= currentStartZ)
+                {
+                    // 겹치는 영역 병합
+                    currentEndX = Mathf.Max(currentEndX, rectEndX);
+                    currentStartZ = Mathf.Min(currentStartZ, rectStartZ);
+                    currentEndZ = Mathf.Max(currentEndZ, rectEndZ);
+                }
+                else
+                {
+                    // 현재 영역 계산 후 새로운 영역 시작
+                    totalArea += (currentEndX - currentStartX) * (currentEndZ - currentStartZ);
+                    currentStartX = rectStartX;
+                    currentEndX = rectEndX;
+                    currentStartZ = rectStartZ;
+                    currentEndZ = rectEndZ;
+                }
+            }
+            else
+            {
+                // 현재 영역 계산 후 새로운 영역 시작
+                totalArea += (currentEndX - currentStartX) * (currentEndZ - currentStartZ);
+                currentStartX = rectStartX;
+                currentEndX = rectEndX;
+                currentStartZ = rectStartZ;
+                currentEndZ = rectEndZ;
+            }
+        }
+
+        // 마지막 영역 계산
+        totalArea += (currentEndX - currentStartX) * (currentEndZ - currentStartZ);
+
+        return totalArea;
+    }
+
 
     /// <summary>
     /// 블럭이 트리거에 얼마나 포함되었는지를 AABB 기준 부피로 계산한다.

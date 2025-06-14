@@ -119,8 +119,12 @@ public class BoxOpen : MonoBehaviour
 
         if (itemPrefabs != null && itemPrefabs.Length > 0 && _itemIndex >= 0 && _itemIndex < itemPrefabs.Length)
         {
-            Quaternion randomRotation = Quaternion.Euler(0f, 0f, Random.Range(0f, 360f));
-            Instantiate(itemPrefabs[_itemIndex], itemSpawnPoint.position, randomRotation);
+            GameObject prefab = itemPrefabs[_itemIndex];
+            Quaternion baseRotation = prefab.transform.rotation;
+            Vector3 localY = baseRotation * Vector3.up;
+            Quaternion randomRotation = Quaternion.AngleAxis(Random.Range(3f, 170f), localY);
+            Quaternion finalRotation = randomRotation * baseRotation;
+            Instantiate(itemPrefabs[_itemIndex], itemSpawnPoint.position, finalRotation);
         }
         else
         {
