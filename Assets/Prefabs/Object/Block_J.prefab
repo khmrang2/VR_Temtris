@@ -234,6 +234,7 @@ MonoBehaviour:
   blockLayer:
     serializedVersion: 2
     m_Bits: 8
+  attachEffectPrefab: {fileID: 7036126874628805402, guid: b5cf5539cf67b87419434b2477557444, type: 3}
 --- !u!114 &6429375034385550625
 MonoBehaviour:
   m_ObjectHideFlags: 0

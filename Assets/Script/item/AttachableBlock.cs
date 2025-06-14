@@ -6,11 +6,39 @@ public class AttachableOnCollision : MonoBehaviour
     public bool canAttach = false;
     public LayerMask blockLayer; // layer를 block으로 설정해야함
 
+    [Header("Attach 상태 표시용 파티클")]
+    public ParticleSystem attachEffectPrefab; // 인스펙터에 프리팹 연결
+    private ParticleSystem currentEffect; // 현재 이 블럭에 붙은 이펙트
+
+    private void Update()
+    {
+        if (canAttach)
+        {
+            if (currentEffect == null && attachEffectPrefab != null)
+            {
+                currentEffect = Instantiate(attachEffectPrefab, transform.position, Quaternion.identity);
+                currentEffect.transform.SetParent(transform);
+                currentEffect.Play();
+            }
+        }
+        else
+        {
+            if (currentEffect != null)
+            {
+                currentEffect.Stop();
+                currentEffect.transform.SetParent(null);
+                Destroy(currentEffect.gameObject, 2f); // 수명 끝나면 제거
+                currentEffect = null;
+            }
+        }
+    }
+
     // 해당 오브젝트의 collider가 다른 collider와 부딪히면 실행됨
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.layer != blockLayer) return;
         if (!canAttach) return;
+        if (((1 << collision.gameObject.layer) & blockLayer) == 0) return;
+        if (collision.transform.IsChildOf(transform) || transform.IsChildOf(collision.transform)) return;
 
         GameObject other = collision.gameObject;
         if (((1 << other.layer) & blockLayer) == 0 || other == gameObject) return; // layer가 blockLayer가 아니면 종료
