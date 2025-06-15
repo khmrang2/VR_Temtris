@@ -30,5 +30,8 @@ public static class SliceUtility
         var grabInter = part.AddComponent<HandGrabInteractable>();
         grabInter.InjectOptionalPointableElement(grab);
         grabInter.InjectRigidbody(rb);
+
+        var attachable = part.AddComponent<AttachableOnCollision>();
+        attachable.blockLayer = 3; // blocklayer에 붙을 수 있게.
     }
 }

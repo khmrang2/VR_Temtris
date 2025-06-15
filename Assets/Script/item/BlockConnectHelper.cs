@@ -4,6 +4,7 @@ using UnityEngine.ProBuilder;
 
 public static class BlockConnectHelper
 {
+    private static float threshold = 0.9f; // face의 법선 A와 다른 face의 법선 B * -1의 곱이 1(수평일때)를 확인하기 위한 threshold
     class Face
     {
         public Vector3 center;
@@ -20,7 +21,6 @@ public static class BlockConnectHelper
 
     public static void ConnectByCollision(GameObject blockA, GameObject blockB)
     {
-        
 
         Face bestA = null, bestB = null;
         float minDistance = float.MaxValue;
@@ -36,7 +36,7 @@ public static class BlockConnectHelper
             foreach (var faceB in facesB)
             {
                 float dot = Vector3.Dot(faceA.normal, -faceB.normal);
-                if (dot < 0.9f) continue; // 면이 반대 방향을 볼 때만 == 법선이 거의 반대방향일 때만
+                if (dot < threshold) continue; // 면이 반대 방향을 볼 때만 == 법선이 거의 반대방향일 때만
 
                 float dist = Vector3.Distance(faceA.center, faceB.center);
                 if (dist < minDistance)

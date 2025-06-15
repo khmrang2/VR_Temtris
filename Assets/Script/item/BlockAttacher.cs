@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class NewBehaviourScript : MonoBehaviour
 {
-    public int removeCount; // 삭제 횟수
+    public int attachCount; // 붙일 횟수
     public LayerMask blockLayer; // layer를 block으로 설정해야함
 
     private void OnCollisionEnter(Collision collision)
@@ -16,20 +16,19 @@ public class NewBehaviourScript : MonoBehaviour
         if (!temp.canAttach)
         {
             temp.canAttach = true;
-            removeCount--;
+            attachCount--;
             Debug.Log($"블럭 {block.name} 붙일 준비 완료.");
         }
         else return;
 
-        if (removeCount < 1)
+        if (attachCount < 1)
         {
-            // 아이템 제거 이펙트 있어도 좋을 듯
             Destroy(gameObject);
             Debug.Log($"아이템 '풀' {gameObject.name} 삭제 완료.");
             return;
         }
 
-        Debug.Log($"블럭 붙일 횟수 {removeCount} 남음.");
+        Debug.Log($"블럭 붙일 횟수 {attachCount} 남음.");
 
     }
 }

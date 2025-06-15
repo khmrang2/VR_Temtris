@@ -7,6 +7,17 @@ TagManager:
   - Anchor
   - Block
   - Box
+  - QDSUIToggleSwitch
+  - QDSUITooltip
+  - QDSUISharedThemeColor
+  - QDSUIAccentColor
+  - QDSUIBorderlessButton
+  - QDSUIToggleButton
+  - QDSUISecondaryButton
+  - QDSUIToggleBorderlessButton
+  - QDSUIIcon
+  - QDSUITextSecondaryColor
+  - QDSUIBackplateGradient
   layers:
   - Default
   - TransparentFX
@@ -17,7 +28,7 @@ TagManager:
   - Overlay UI
   - sliceable
   - Board
-  - 
+  - Item
   - 
   - 
   - 
