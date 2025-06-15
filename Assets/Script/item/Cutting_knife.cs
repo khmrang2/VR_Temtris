@@ -20,6 +20,8 @@ public class Cutting_knife : MonoBehaviour
     public float sliceCooldown = 1.0f; // 슬라이스 후 대기 시간 (초)
     private float cooldownTimer = 0f;
 
+    [SerializeField] private AudioSource _audioSource = null;
+
     void FixedUpdate()
     {
         // 쿨타임 감소

@@ -4,18 +4,15 @@ using UnityEngine.XR.Interaction.Toolkit;
 using System.Collections;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using Oculus.Interaction;
+using Oculus.Interaction.HandGrab;
+using UnityEngine.UIElements;
 
-[RequireComponent(typeof(UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable))]
-public class BoxOpen : MonoBehaviour
+
+public class BoxOpen : MonoBehaviour, IHandGrabUseDelegate
 {
     public Animator animator;
     public Transform itemSpawnPoint;        // 랜덤 블럭 생성 위치
     public GameObject[] itemPrefabs;        // 블럭 프리팹 목록
-
-    //private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grabInteractable;
-    private OVRGrabbable grabInteractable2;
-    private UnityEngine.XR.Interaction.Toolkit.Interactors.IXRSelectInteractor currentInteractor;
-    private InputDevice heldDevice;
 
     [SerializeField] private bool isOpened = false;      // 박스가 열렸는 지
     [SerializeField] private bool heldByGripper = true;      // Gripper에 의해 붙잡히고 있는 지
@@ -23,61 +20,47 @@ public class BoxOpen : MonoBehaviour
 
     private int _itemIndex = 0;
 
-    private void Awake()        // 플레이어에 의한 Grap 확인
+
+    #region Hand grab 이벤트 구현
+
+    public void OnSelect()
     {
-        //grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
-        grabInteractable2 = GetComponent<OVRGrabbable>();
-
-        //grabInteractable.selectEntered.AddListener(OnSelectEntered);    // 플레이어에 의해 Grap 당했을 때
-        //grabInteractable.selectExited.AddListener(OnSelectExited);      // 플레이어에 의해 Grap 해제됐을 때
-        //grabInteractable.activated.AddListener(OnTriggerActivated);
-    }
-
-    private void OnTriggerActivated(ActivateEventArgs arg)
-    {
-        TryOpen();
-    }
-
-    private void OnSelectEntered(SelectEnterEventArgs args)     // 플레이어에 의해 Grap 당했을 때
-    {
-        currentInteractor = args.interactorObject;
-
         if (heldByGripper && holdingGripper != null)        // Gripper가 박스를 놓게 함
         {
-            holdingGripper.Release();
-            heldByGripper = false;
-            holdingGripper = null;
-        }
-
-        // XR 장치 입력 연결 ***** 아마 수정 필요
-        if (currentInteractor is UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInputInteractor controllerInteractor)
-        {
-            Debug.Log("[BoxOpen] : 플레이어에게 잡혔는지?");
-        }
+            Debug.Log("[BoxOpen] 플레이어가 박스를 손으로 잡았습니다.");
+            holdingGripper.Release(); // Gripper에서 박스를 놓게 하는 함수
+            SetHeldByGripper(false);
+        }    
     }
 
-    private void OnSelectExited(SelectExitEventArgs args)       // 플레이어에 의해 Grap 해제됐을 때
+    public void OnUnSelect()
     {
-        Debug.Log("[BoxOpen] : 유저가 박스를 놨다! ");
-        currentInteractor = null;
-        heldDevice = default;
+        Debug.Log("[BoxOpen] 플레이어가 박스를 놧습니다.");
     }
 
-    private void Update()
+    #endregion
+    #region Hand Use After Grab 이벤트 구현
+    public void BeginUse()
     {
-        if (currentInteractor == null || isOpened)      // 플레이어에 의한 Grap 상태가 아니거나 이미 열려있다면 return 
-            return;
+    }
 
-        // 플레이어에 의한 Grap 상태에서 트리거 버튼이 입력되면 박스를 오픈
-        if (heldDevice.TryGetFeatureValue(CommonUsages.triggerButton, out bool triggerPressed) && triggerPressed)
+    public void EndUse()
+    {
+    }
+
+    public float ComputeUseStrength(float strength)
+    {
+        if(strength > 0.5)
         {
-            Debug.Log("[BoxOpen] : 유저가 열려고 했다!");
             TryOpen();
         }
+        return strength;
     }
+    #endregion
 
     public void TryOpen()       // 박스를 오픈
     {
+        Debug.LogWarning("[BoxOpen] : Try open callingg");
         if (isOpened || heldByGripper)  // 이미 열려있거나 Gripper에 붙잡혀 있다면
         {
             Debug.Log("이미 열렸거나 Gripper가 붙잡고 있습니다.");
@@ -125,12 +108,13 @@ public class BoxOpen : MonoBehaviour
             GameObject prefab = itemPrefabs[_itemIndex];
             Vector3 localDir;
             Quaternion baseRotation = prefab.transform.rotation;
-            if(prefab.name == "Block_J" || prefab.name == "Block_L")
+            if (prefab.name == "Block_J" || prefab.name == "Block_L")
             {
                 localDir = baseRotation * Vector3.forward;
             }
-            else{
-                localDir= baseRotation * Vector3.up;
+            else
+            {
+                localDir = baseRotation * Vector3.up;
             }
             Quaternion randomRotation = Quaternion.AngleAxis(Random.Range(0f, 360f), localDir);
             Quaternion finalRotation = randomRotation * baseRotation;
@@ -167,8 +151,8 @@ public class BoxOpen : MonoBehaviour
         isOpened = false;
         heldByGripper = false;
         holdingGripper = null;
-        currentInteractor = null;
-        heldDevice = default;
+        //currentInteractor = null;
+        //heldDevice = default;
 
         if (animator != null)
         {
@@ -176,4 +160,36 @@ public class BoxOpen : MonoBehaviour
             animator.Update(0f);
         }
     }
+
 }
+/*    private void OnTriggerActivated(ActivateEventArgs arg)
+    {
+        Debug.LogWarning("[BoxOpen] : 설정됨.");
+        TryOpen();
+        heldDevice = default;
+    }*/
+
+/*    private void OnSelectEntered(SelectEnterEventArgs args)     // 플레이어에 의해 Grap 당했을 때
+    {
+        currentInteractor = args.interactorObject;
+
+        if (heldByGripper && holdingGripper != null)        // Gripper가 박스를 놓게 함
+        {
+            holdingGripper.Release();
+            heldByGripper = false;
+            holdingGripper = null;
+        }
+
+        // XR 장치 입력 연결 ***** 아마 수정 필요
+        if (currentInteractor is UnityEngine.XR.Interaction.Toolkit.Interactors.XRBaseInputInteractor controllerInteractor)
+        {
+            Debug.Log("[BoxOpen] : 플레이어에게 잡혔는지?");
+        }
+    }
+
+    private void OnSelectExited(SelectExitEventArgs args)       // 플레이어에 의해 Grap 해제됐을 때
+    {
+        Debug.Log("[BoxOpen] : 유저가 박스를 놨다! ");
+        currentInteractor = null;
+        heldDevice = default;
+    }*/

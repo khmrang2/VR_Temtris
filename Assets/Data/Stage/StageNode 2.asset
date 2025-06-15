@@ -31,7 +31,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   children: []
-  desertSceneName: 
-  waterSceneName: 
+  desertSceneName: DesertMap
+  waterSceneName: Watermaptest
   stageData: {fileID: 11400000, guid: 80a2c2b885a6c0e46bcd7fb24da89847, type: 2}
   sceneLoader: {fileID: 11400000, guid: 0ea07c1644464e0438bef403ed2b0479, type: 2}

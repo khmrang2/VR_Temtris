@@ -6,7 +6,7 @@ public class LineTrigger : MonoBehaviour
 {
     [Header("외부 연결")]
     [SerializeField] private EdgeCuttingManager _cuttingManager; // 절단 요청을 보낼 관리자 스크립트
-
+    [SerializeField] private ScoreManager _scoreManager; // 스코어매니져
     [Header("절단 기준 Plane")]
     [SerializeField] private Transform topPlane;   // 상단 평면 Transform
     [SerializeField] private Transform bottomPlane; // 하단 평면 Transform
@@ -142,6 +142,7 @@ public class LineTrigger : MonoBehaviour
                 {
                     Debug.LogWarning("[LineTrigger] 절단 실패");
                 }
+                _scoreManager.AddScore(10);
             }
         }
     }

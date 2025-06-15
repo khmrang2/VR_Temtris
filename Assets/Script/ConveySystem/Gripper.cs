@@ -24,13 +24,22 @@ public class Gripper : MonoBehaviour
 
     public void Release()   // 잡고 있던 박스 놔주기
     {
+        var rb = heldBox.GetComponent<Rigidbody>();     // 박스의 RigidBox 다시 활성화
+        rb.isKinematic = false;
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            Debug.Log("Gripper.cs : 이 친구의 kinematic false 로 설정!");
+        }
+        else
+        {
+            Debug.Log("Gripper.cs : 이 친구의 Rigidbody가 없습니다. ");
+        }
         Debug.Log("[Gripper.cs] 잡고 있던 박스를 놔줍니다. ");
         if (heldBox == null) return;
 
         heldBox.transform.SetParent(null);      // 자식관계 해제
 
-        var rb = heldBox.GetComponent<Rigidbody>();     // 박스의 RigidBox 다시 활성화
-        if (rb != null) rb.isKinematic = false;
 
         var interactable = heldBox.GetComponent<BoxOpen>();     // Gripper 정보 제거
         if (interactable != null)

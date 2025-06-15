@@ -18,6 +18,14 @@ TagManager:
   - QDSUIIcon
   - QDSUITextSecondaryColor
   - QDSUIBackplateGradient
+  - QDSUISection
+  - SamplesInfoPanel
+  - QDSUIToggleCheckboxRadio
+  - QDSUIDestructiveButton
+  - QDSUITextInputField
+  - QDSUIPrimaryButton
+  - QDSUITextInvertedColor
+  - QDSUITextSecondaryInvertedColor
   layers:
   - Default
   - TransparentFX
@@ -29,6 +37,8 @@ TagManager:
   - sliceable
   - Board
   - Item
+  - Player
+  - Usable
   - 
   - 
   - 
@@ -48,9 +58,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
+  - OVROverlayCanvas Rendering
   m_SortingLayers:
   - name: Default
     uniqueID: 0

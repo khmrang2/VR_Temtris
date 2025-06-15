@@ -68,7 +68,6 @@ public static class BlockConnectHelper
             Vector3 offset = bestA.center - bestB.center;
             blockB.transform.position += offset;
 
-
             // 3. FixedJoint 연결
             FixedJoint joint = blockA.AddComponent<FixedJoint>();
             joint.connectedBody = blockB.GetComponent<Rigidbody>();
@@ -76,6 +75,11 @@ public static class BlockConnectHelper
 
             // 4. 자식으로 설정
             blockB.transform.SetParent(blockA.transform, true);
+
+            Vector3 originalScale = blockB.transform.lossyScale;
+            blockB.transform.localScale = new Vector3(
+                1,1,1
+            );
 
             Debug.Log("블럭 연결 성공");
         }

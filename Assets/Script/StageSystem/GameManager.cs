@@ -1,9 +1,13 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance;
+
     [Header("SceneLoaderSO 에셋")]
     [SerializeField] private SceneLoaderSO sceneLoader;   // Inspector: SceneLoader.asset 연결
 
@@ -111,11 +115,12 @@ public class GameManager : MonoBehaviour
         remainingTime = data.timeLimit;
         if (timerText != null)
         {
-            timerText.text = $"{Mathf.CeilToInt(remainingTime)}";
+            timerText.text = $"remain time is {Mathf.CeilToInt(remainingTime)}";
         }
 
         // 목표 점수 세팅
         goalScore = data.pointGoal;
+        scoreText.text = $"Score : 0/{goalScore}";
 
         Debug.Log($"[GameManager] 스테이지 초기화 완료: {data.name} " +
                   $"(간격={data.blockSpawnInterval}, 시드={data.randomSeed}, 제한시간={data.timeLimit}, 목표점수={data.pointGoal})");
@@ -131,7 +136,7 @@ public class GameManager : MonoBehaviour
         currentScore = newScore;
         if (scoreText != null)
         {
-            scoreText.text = $"Score: {newScore}";
+            scoreText.text = $"Score: {newScore}/{goalScore}";
         }
 
         CheckGameEnd();
@@ -168,10 +173,11 @@ public class GameManager : MonoBehaviour
     {
         if (isGameEnded) return;
 
+        isGameEnded = true;
+
         // 1) 승리 조건 확인
         if (currentScore >= goalScore)
         {
-            isGameEnded = true;
             Debug.Log("게임 승리!");
             if (winPanel != null)
                 winPanel.SetActive(true);
@@ -181,7 +187,6 @@ public class GameManager : MonoBehaviour
         // 2) 패배 조건 확인
         if (remainingTime <= 0f)
         {
-            isGameEnded = true;
             Debug.Log("게임 패배...");
             if (losePanel != null)
                 losePanel.SetActive(true);
