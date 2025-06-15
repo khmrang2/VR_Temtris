@@ -18,6 +18,11 @@ public class LineTrigger : MonoBehaviour
     private float stillTime = 0f;                  // 정지 시간 누적값
     private bool isStable = false;                 // 현재 안정 상태 여부
 
+    public event System.Action<float> OnFillRatioChanged;
+
+    private float previousRatio = -1f;
+    public float GetFillRatio() => CalculateXLineFillRatioAtCenterPlane();
+
     /// <summary>
     /// 초기화 시 절단 임계값과 정지 판정 대기 시간을 가져온다.
     /// </summary>
@@ -115,8 +120,14 @@ public class LineTrigger : MonoBehaviour
         if (isStable)
         {
             //float fillRatio = CalculateXLineFillRatioAtCenterPlane();
-            float fillRatio = CalculateXZFillRatioAtCenterPlane();
-            Debug.Log($"[LineTrigger] X 평면 점유율: {fillRatio:P1}");
+            float fillRatio = CalculateXLineFillRatioAtCenterPlane();
+            Debug.Log($"[LineTrigger] XZ 평면 점유율: {fillRatio:P1}");
+
+            if (!Mathf.Approximately(fillRatio, previousRatio))
+            {
+                previousRatio = fillRatio;
+                OnFillRatioChanged?.Invoke(fillRatio);
+            }
 
             if (fillRatio >= _triggerThreshold)
             {
@@ -207,7 +218,7 @@ public class LineTrigger : MonoBehaviour
         var bounds = GetComponent<BoxCollider>().bounds;
         float planeY = bounds.center.y;
         float triggerArea = bounds.size.x * bounds.size.z;
-
+        Debug.Log($"{triggerArea}: 영역 크기 보여주셈 ");
         HashSet<Rect> uniqueRects = new HashSet<Rect>();
 
         foreach (var kvp in blockColliders)

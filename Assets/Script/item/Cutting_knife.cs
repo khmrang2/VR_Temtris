@@ -16,8 +16,14 @@ public class Cutting_knife : MonoBehaviour
 
     public GameObject fallbackPrefab; // BlockSliceInfo가 없을 경우 사용할 프리팹
 
+    public float cnt = 3.0f;
+
     void FixedUpdate()
     {
+        if (cnt == 0)
+        {
+            Destroy(this);
+        }
         bool hasHit = Physics.Linecast(startSlicePoint.position, endSlicePoint.position, out RaycastHit hit, sliceableLayer);
         if (hasHit)
         {
@@ -61,5 +67,6 @@ public class Cutting_knife : MonoBehaviour
         {
             Debug.LogWarning("Slicing failed: Hull is null. (평면이 잘못됐을 수 있음)");
         }
+        cnt--;
     }
 }

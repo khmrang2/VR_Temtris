@@ -1,5 +1,8 @@
 using UnityEngine;
 using EzySlice;
+using Oculus.Interaction;
+using Unity.VisualScripting;
+using Oculus.Interaction.HandGrab;
 
 public static class SliceUtility
 {
@@ -19,5 +22,13 @@ public static class SliceUtility
 
         var rb = part.AddComponent<Rigidbody>();
         rb.useGravity = true;
+
+        var grab = part.AddComponent<Grabbable>();
+        grab.TransferOnSecondSelection = true;
+        grab.InjectOptionalRigidbody(rb);
+
+        var grabInter = part.AddComponent<HandGrabInteractable>();
+        grabInter.InjectOptionalPointableElement(grab);
+        grabInter.InjectRigidbody(rb);
     }
 }

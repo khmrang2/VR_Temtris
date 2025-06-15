@@ -50,9 +50,10 @@ MonoBehaviour:
   velocityEstimator: {fileID: 2490500882813626961}
   sliceableLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 136
   crossSectionMaterial: {fileID: 0}
   cutForce: 2000
+  fallbackPrefab: {fileID: 0}
 --- !u!1 &2771984976169677498
 GameObject:
   m_ObjectHideFlags: 0

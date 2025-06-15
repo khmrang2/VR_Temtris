@@ -3,6 +3,7 @@ using UnityEngine.XR;
 using UnityEngine.XR.Interaction.Toolkit;
 using System.Collections;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using Oculus.Interaction;
 
 [RequireComponent(typeof(UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable))]
 public class BoxOpen : MonoBehaviour
@@ -11,7 +12,8 @@ public class BoxOpen : MonoBehaviour
     public Transform itemSpawnPoint;        // 랜덤 블럭 생성 위치
     public GameObject[] itemPrefabs;        // 블럭 프리팹 목록
 
-    private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grabInteractable;
+    //private UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grabInteractable;
+    private OVRGrabbable grabInteractable2;
     private UnityEngine.XR.Interaction.Toolkit.Interactors.IXRSelectInteractor currentInteractor;
     private InputDevice heldDevice;
 
@@ -23,11 +25,12 @@ public class BoxOpen : MonoBehaviour
 
     private void Awake()        // 플레이어에 의한 Grap 확인
     {
-        grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+        //grabInteractable = GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
+        grabInteractable2 = GetComponent<OVRGrabbable>();
 
-        grabInteractable.selectEntered.AddListener(OnSelectEntered);    // 플레이어에 의해 Grap 당했을 때
-        grabInteractable.selectExited.AddListener(OnSelectExited);      // 플레이어에 의해 Grap 해제됐을 때
-        grabInteractable.activated.AddListener(OnTriggerActivated);
+        //grabInteractable.selectEntered.AddListener(OnSelectEntered);    // 플레이어에 의해 Grap 당했을 때
+        //grabInteractable.selectExited.AddListener(OnSelectExited);      // 플레이어에 의해 Grap 해제됐을 때
+        //grabInteractable.activated.AddListener(OnTriggerActivated);
     }
 
     private void OnTriggerActivated(ActivateEventArgs arg)
@@ -120,9 +123,16 @@ public class BoxOpen : MonoBehaviour
         if (itemPrefabs != null && itemPrefabs.Length > 0 && _itemIndex >= 0 && _itemIndex < itemPrefabs.Length)
         {
             GameObject prefab = itemPrefabs[_itemIndex];
+            Vector3 localDir;
             Quaternion baseRotation = prefab.transform.rotation;
-            Vector3 localY = baseRotation * Vector3.up;
-            Quaternion randomRotation = Quaternion.AngleAxis(Random.Range(3f, 170f), localY);
+            if(prefab.name == "Block_J" || prefab.name == "Block_L")
+            {
+                localDir = baseRotation * Vector3.forward;
+            }
+            else{
+                localDir= baseRotation * Vector3.up;
+            }
+            Quaternion randomRotation = Quaternion.AngleAxis(Random.Range(0f, 360f), localDir);
             Quaternion finalRotation = randomRotation * baseRotation;
             Instantiate(itemPrefabs[_itemIndex], itemSpawnPoint.position, finalRotation);
         }
