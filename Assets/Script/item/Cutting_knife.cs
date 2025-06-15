@@ -17,12 +17,20 @@ public class Cutting_knife : MonoBehaviour
     public GameObject fallbackPrefab; // BlockSliceInfo가 없을 경우 사용할 프리팹
 
     public float cnt = 3.0f;
+    public float sliceCooldown = 1.0f; // 슬라이스 후 대기 시간 (초)
+    private float cooldownTimer = 0f;
 
     void FixedUpdate()
     {
-        if (cnt == 0)
+        // 쿨타임 감소
+        if (cooldownTimer > 0f)
         {
-            Destroy(this);
+            cooldownTimer -= Time.fixedDeltaTime;
+            return; // 쿨타임 중엔 자르지 않음
+        }
+        if (cnt <= 0)
+        {
+            Destroy(this.gameObject);
         }
         bool hasHit = Physics.Linecast(startSlicePoint.position, endSlicePoint.position, out RaycastHit hit, sliceableLayer);
         if (hasHit)
