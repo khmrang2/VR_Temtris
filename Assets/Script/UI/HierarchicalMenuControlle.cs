@@ -92,7 +92,6 @@ public class HierarchicalMenuController : MonoBehaviour
 
             btn.GetComponent<Button>().onClick.AddListener(() =>
             {
-                Debug.Log("버튼 클릭 넣음.");
                 RemovePanelsAfter(level);
                 if (child.children != null && child.children.Count > 0)
                     SpawnPanel(child, level + 1);
