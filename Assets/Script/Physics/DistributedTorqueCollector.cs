@@ -10,29 +10,21 @@ public class DistributedTorqueCollector : MonoBehaviour
     private Vector3 lastAppliedTorque = Vector3.zero;
 
     private bool isGrounded = false;
+    private int stillFrameCounter = 0;
 
     [Header("Torque 설정")]
-    [Tooltip("토크 강도 레벨 (× 토크 단위)")]
     public float torqueLevel = 20f;
-
-    [Tooltip("실제 물리 배수 단위 (보통 5000)")]
     public float torqueUnit = 5000f;
-
-    [Tooltip("회전 적용 최소 임계값")]
     public float torqueThreshold = 0.01f;
-
-    [Tooltip("회전 방향 일치 허용치 (0~1), 높을수록 일치 시 토크 생략")]
     public float alignmentThreshold = 0.95f;
-
-    [Tooltip("부드러운 회전 감쇠 계수 (0~1), 0이면 즉시, 1이면 느리게")]
     public float torqueLerpFactor = 0.1f;
-
-    [Tooltip("최대 허용 회전 속도 (이 이상이면 토크 생략)")]
     public float maxRotationSpeed = 15f;
 
     [Header("감쇠 설정")]
-    [Tooltip("기본 angularDrag 값 (torqueLevel=1 기준)")]
     public float baseAngularDrag = 0.01f;
+
+    [Header("Sleep 설정")]
+    public int requiredStillFrames = 10;
 
     [Header("디버그 옵션")]
     public bool drawTorqueGizmo = true;
@@ -43,8 +35,12 @@ public class DistributedTorqueCollector : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.useGravity = false;
+
+        //물리 설정 권장
+        rb.useGravity = false;                // 중력 직접 적용 대신 자동 적용
         rb.angularDrag = baseAngularDrag * torqueLevel;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
     }
 
     void FixedUpdate()
@@ -52,19 +48,28 @@ public class DistributedTorqueCollector : MonoBehaviour
         float v = rb.velocity.magnitude;
         float av = rb.angularVelocity.magnitude;
 
-        //  접지 상태이고, 속도가 충분히 느리면 Sleep 처리
+        // 1. Sleep 조건 검사: 접지 상태 + 정지 프레임 누적
         if (isGrounded && v < 0.01f && av < 0.01f)
         {
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.Sleep();
-            return;
+            stillFrameCounter++;
+            if (stillFrameCounter >= requiredStillFrames)
+            {
+               // Debug.Log($"[SLEEP] {gameObject.name} → 조건 충족. Sleep()");
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.Sleep();
+                return;
+            }
+        }
+        else
+        {
+            stillFrameCounter = 0;
         }
 
-        //  중력은 항상 적용
+        // 2. 중력 직접 적용 제거 → useGravity = true로 대체
         rb.AddForce(Physics.gravity * rb.mass);
 
-        //  토크 계산
+        // 3. 자식 기반 토크 계산
         Vector3 totalTorque = Vector3.zero;
         Vector3 com = rb.worldCenterOfMass;
 
@@ -79,6 +84,11 @@ public class DistributedTorqueCollector : MonoBehaviour
         }
 
         Vector3 rawTorque = totalTorque * TorqueMultiplier;
+
+        //  4. 미세 토크 제거
+        if (rawTorque.sqrMagnitude < 1e-6f)
+            return;
+
         Vector3 torqueDir = rawTorque.normalized;
         Vector3 angularDir = rb.angularVelocity.normalized;
         float alignment = Vector3.Dot(torqueDir, angularDir);
@@ -87,24 +97,22 @@ public class DistributedTorqueCollector : MonoBehaviour
         Vector3 smoothTorque = Vector3.Lerp(previousTorque, rawTorque, torqueLerpFactor);
         previousTorque = smoothTorque;
 
-        if (!(alignment > alignmentThreshold &&
-              rawTorque.magnitude < torqueThreshold) &&
-              currentSpeed < maxRotationSpeed)
+        //  5. 조건 만족 시 토크 적용
+        if (!(alignment > alignmentThreshold && rawTorque.magnitude < torqueThreshold) &&
+            currentSpeed < maxRotationSpeed)
         {
+            rb.angularDrag = baseAngularDrag * torqueLevel + 0.2f;  // 감쇠 강화
             rb.AddTorque(smoothTorque);
         }
 
         lastAppliedTorque = smoothTorque;
-
-#if UNITY_EDITOR
-        Debug.Log($"[Torque] {gameObject.name} → Mult: {TorqueMultiplier}, Applied: {smoothTorque:F3}, Align: {alignment:F2}, Speed: {currentSpeed:F2}, Grounded: {isGrounded}");
-#endif
     }
 
-    //  접지 감지 처리
+    //  접지 감지
     private void OnCollisionStay(Collision collision)
     {
         isGrounded = true;
+       // Debug.Log($"[Ground] OnCollisionStay 실행됨: {collision.gameObject.name}");
     }
 
     private void OnCollisionExit(Collision collision)
@@ -112,7 +120,7 @@ public class DistributedTorqueCollector : MonoBehaviour
         isGrounded = false;
     }
 
-    //  시각화
+    //  토크 시각화
     private void OnDrawGizmosSelected()
     {
         if (!Application.isPlaying || !drawTorqueGizmo) return;

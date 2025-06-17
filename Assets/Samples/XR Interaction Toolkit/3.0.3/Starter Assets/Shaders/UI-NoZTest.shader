@@ -21,7 +21,7 @@ Shader "UI/NoZTest"
         Cull Off
         Lighting Off
         ZWrite Off
-        ZTest Off
+        ZTest LEqual
         Blend SrcAlpha OneMinusSrcAlpha
 
         Pass

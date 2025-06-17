@@ -8,7 +8,7 @@ using UnityEngine;
 /// 복합 오브젝트, 단일 Mesh 조각 모두 대응 가능합니다.
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
-public class CenterOfMassAutoSetter : MonoBehaviour
+public class CenterofMass : MonoBehaviour
 {
     void Start()
     {

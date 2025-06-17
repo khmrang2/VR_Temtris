@@ -1,0 +1,4 @@
+font : 
+
+글꼴(폰트)로 DOSGothic(leedheo 제작)를 사용하였습니다.
+https://github.com/hurss/fonts?tab=readme-ov-file
