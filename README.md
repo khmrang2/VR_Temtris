@@ -27,6 +27,70 @@
 
 ---
 
+## 기술 스택
+
+| 분류 | 기술 |
+|------|------|
+| 엔진 | Unity |
+| 언어 | C# |
+| VR 플랫폼 | Meta Quest 2 |
+| VR SDK | Meta XR SDK, XR Interaction Toolkit |
+| 물리 | Unity Physics, EzySlice (블록 절단) |
+| 렌더링 | Custom Shader (ShaderLab/HLSL), Glass Shader |
+| UI | TextMesh Pro |
+| 데이터 | ScriptableObject, JSON (StageData) |
+
+---
+
+## 프로젝트 구조
+
+```
+Assets/
+├── Script/
+│   ├── Cam/              # 카메라 시스템
+│   ├── ConveySystem/     # 로봇팔/컨베이어 벨트 시스템
+│   ├── item/             # 아이템 시스템 (글루, 슬라이스, 지우개)
+│   ├── Physics/          # 물리 엔진 (충돌, 파괴)
+│   ├── Scoresystem/      # 점수 시스템
+│   ├── Scriptable/       # ScriptableObject 데이터
+│   ├── StageSystem/      # 스테이지/레벨 시스템
+│   ├── UI/               # UI 인터랙션
+│   └── Utils/            # 유틸리티
+├── Prefabs/              # 블록, 아이템 프리팹
+├── Scenes/               # 게임 씬
+├── Art/                  # 아트 리소스
+├── Data/                 # 스테이지 데이터
+├── MetaXR/               # Meta XR SDK
+└── XRI/                  # XR Interaction Toolkit
+```
+
+---
+
+## 나의 기여 내역 (커밋 로그 기반)
+
+> 팀장으로서 프로젝트 총괄 및 핵심 시스템 구현 담당 (29/72 commits, 40%)
+
+**프로젝트 총괄 및 브랜치 관리**
+- 프로젝트 초기 설정 및 리포지토리 구성
+- 다수의 브랜치(Map-Design, Item, Demo 등) 통합 머지 관리
+- PR 리뷰 및 코드 통합 작업 주도
+
+**스테이지/레벨 시스템 설계**
+- StageData 로드 및 레벨 시스템 설계·적용
+- 랜덤 블록 생성 로직 구현
+- 게임 종료 조건 설정
+
+**카메라 및 VR 상호작용**
+- 테트리스 보드를 관찰하는 카메라 시스템 구현
+- 카메라 콜라이더 설정 및 수정
+- 블록 아웃라인(외곽선) 시스템 구현 (EzySlice 호환성 문제 해결)
+
+**맵 디자인 및 프로토타입**
+- 프로토타입 맵 제작
+- 데모용 최종 수정 및 통합
+
+---
+
 ## 기획 의도 및 주제 선정 이유
 
 테트리스는 1984년 출시 이후 지금까지도 세계적으로 꾸준히 사랑받고 있는 고전 퍼즐 게임이다. 단순한 규칙 속에서 높은 몰입도와 도전 욕구를 자극하는 구조 덕분에, Not Tetris, Sandtrix 등 다양한 변형작들이 등장해왔다. 우리 팀은 이러한 테트리스를 VR 환경에서 직접 블록을 잡고 배치하는 물류 작업처럼 재해석함으로써, 새로운 플레이 경험을 줄 수 있을 것이라 판단하였다.
